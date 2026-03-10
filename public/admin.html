@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin — IntelGrid</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0A0E1A;--bg2:#0F1629;--bg3:#141C35;--border:#1E2D50;--accent:#3B82F6;--accent2:#06B6D4;--green:#10B981;--red:#EF4444;--yellow:#F59E0B;--purple:#8B5CF6;--text:#E2E8F0;--muted:#64748B;--sidebar:230px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:30}
+.sidebar-logo{display:flex;align-items:center;gap:9px;padding:20px;text-decoration:none}
+.logo-mark{width:32px;height:32px;background:linear-gradient(135deg,#EF4444,#8B5CF6);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;flex-shrink:0}
+.logo-text{font-size:0.95rem;font-weight:700;letter-spacing:1px}
+.admin-badge{font-size:0.6rem;background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);border-radius:3px;padding:1px 6px;letter-spacing:0.1em;display:block;margin-top:1px}
+.sidebar-divider{height:1px;background:var(--border);margin:0 16px 8px}
+nav.sidebar-nav{flex:1;padding:0 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:0.845rem;color:var(--muted);transition:all 0.15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+.nav-item.active{background:rgba(59,130,246,0.12);color:var(--accent);font-weight:500}
+.nav-icon{font-size:1rem;width:22px;text-align:center;flex-shrink:0}
+.sidebar-bottom{padding:14px 10px}
+.btn-logout{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;background:none;border:none;color:var(--muted);font-size:0.8rem;cursor:pointer;border-radius:7px;transition:all 0.15s}
+.btn-logout:hover{color:var(--red);background:rgba(239,68,68,0.06)}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column}
+.topbar{height:60px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:var(--bg2);position:sticky;top:0;z-index:20}
+.topbar-title{font-size:1rem;font-weight:600}
+.admin-chip{display:flex;align-items:center;gap:6px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:5px 12px;font-size:0.72rem;color:var(--red);font-weight:500}
+.content{flex:1;padding:28px;overflow-y:auto}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
+.stat-label{font-size:0.7rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-val{font-size:1.8rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+.c-blue{color:var(--accent)}.c-green{color:var(--green)}.c-yellow{color:var(--yellow)}.c-red{color:var(--red)}.c-purple{color:var(--purple)}
+
+/* TABLES */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.table-title{font-size:0.9rem;font-weight:600}
+.search-input-sm{height:34px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:0 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.82rem;outline:none;width:200px}
+.search-input-sm:focus{border-color:var(--accent)}
+.filter-sel{height:34px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:0 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.82rem;outline:none}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:0.68rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border)}
+td{padding:11px 16px;border-bottom:1px solid rgba(30,45,80,0.5);font-size:0.82rem;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:0.78rem}
+.tag{display:inline-flex;align-items:center;font-size:0.65rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.tag-green{background:rgba(16,185,129,0.12);color:#6EE7B7}
+.tag-red{background:rgba(239,68,68,0.12);color:#FCA5A5}
+.tag-blue{background:rgba(59,130,246,0.12);color:#93C5FD}
+.tag-yellow{background:rgba(245,158,11,0.12);color:#FCD34D}
+.tag-purple{background:rgba(139,92,246,0.12);color:#C4B5FD}
+.tag-muted{background:rgba(100,116,139,0.12);color:#CBD5E1}
+
+/* ACTION BUTTONS */
+.btn-sm{height:28px;padding:0 10px;border-radius:5px;font-size:0.72rem;font-weight:500;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all 0.15s}
+.btn-green{background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.3)}
+.btn-green:hover{background:var(--green);color:#0A0E1A}
+.btn-red{background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+.btn-red:hover{background:var(--red);color:white}
+.btn-blue{background:rgba(59,130,246,0.12);color:var(--accent);border:1px solid rgba(59,130,246,0.3)}
+.btn-blue:hover{background:var(--accent);color:white}
+.btn-yellow{background:rgba(245,158,11,0.12);color:var(--yellow);border:1px solid rgba(245,158,11,0.3)}
+.btn-yellow:hover{background:var(--yellow);color:#0A0E1A}
+.btn-purple{background:rgba(139,92,246,0.12);color:var(--purple);border:1px solid rgba(139,92,246,0.3)}
+.btn-purple:hover{background:var(--purple);color:white}
+.actions{display:flex;gap:5px;flex-wrap:wrap}
+
+/* PAGINATION */
+.pagination{display:flex;gap:6px;padding:14px 16px;justify-content:center;border-top:1px solid var(--border)}
+.page-btn{height:30px;min-width:30px;padding:0 8px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--muted);font-size:0.78rem;cursor:pointer}
+.page-btn:hover,.page-btn.active{background:var(--accent);border-color:var(--accent);color:white}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:480px;width:calc(100%-40px);animation:fadeUp 0.3s ease;max-height:90vh;overflow-y:auto}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal h2{font-size:1.1rem;font-weight:600;margin-bottom:20px}
+.form-field{margin-bottom:14px}
+.form-field label{display:block;font-size:0.7rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.form-field input,.form-field select,.form-field textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.845rem;outline:none}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--accent)}
+.form-field textarea{height:90px;resize:vertical}
+.form-field select option{background:var(--bg2)}
+.modal-btns{display:flex;gap:10px;margin-top:18px}
+.btn-modal-cancel{flex:1;height:40px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-family:'Inter',sans-serif}
+.btn-modal-ok{flex:1;height:40px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500}
+.err{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:#FCA5A5;padding:10px 14px;font-size:0.82rem;margin-top:10px;display:none}
+.suc{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:7px;color:#6EE7B7;padding:10px 14px;font-size:0.82rem;margin-top:10px;display:none}
+
+/* BANNER FORM */
+.new-banner-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px}
+.new-banner-card h3{font-size:0.9rem;font-weight:600;margin-bottom:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.btn-primary{height:42px;padding:0 22px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.845rem;font-weight:500;cursor:pointer}
+</style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <a href="/" class="sidebar-logo">
+    <div class="logo-mark">A</div>
+    <div>
+      <div class="logo-text">INTELGRID</div>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+  </a>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <button class="nav-item active" onclick="switchTab('overview',this)"><span class="nav-icon">📊</span> Overview</button>
+    <button class="nav-item" onclick="switchTab('users',this)"><span class="nav-icon">👥</span> Users</button>
+    <button class="nav-item" onclick="switchTab('searches',this)"><span class="nav-icon">🔍</span> Search Logs</button>
+    <button class="nav-item" onclick="switchTab('payments',this)"><span class="nav-icon">💰</span> Payments</button>
+    <button class="nav-item" onclick="switchTab('banners',this)"><span class="nav-icon">📢</span> Banners</button>
+    <button class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon">↩️</span> User Dashboard</button>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">⬡ Sign Out</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">Admin Overview</div>
+    <div class="admin-chip">⚠ Admin Panel</div>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="tab-panel active" id="tab-overview">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-val c-blue" id="statUsers">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Searches</div><div class="stat-val c-green" id="statSearches">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-val c-yellow" id="statRevenue">—</div></div>
+        <div class="stat-card"><div class="stat-label">Banned Users</div><div class="stat-val c-red" id="statBanned">—</div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">Recent Users</div></div>
+        <table><thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Credits</th><th>Status</th><th>Joined</th></tr></thead>
+        <tbody id="recentUsersBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody></table>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">Recent Search Logs</div></div>
+        <table><thead><tr><th>User</th><th>Type</th><th>Query</th><th>Status</th><th>Time</th></tr></thead>
+        <tbody id="recentSearchesBody"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="tab-panel" id="tab-users">
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">All Users</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input class="search-input-sm" type="text" id="userSearch" placeholder="Search name/email…" oninput="debounce(()=>loadUsers(1),400)()"/>
+            <select class="filter-sel" id="userPlanFilter" onchange="loadUsers(1)">
+              <option value="">All Plans</option>
+              <option value="free">Free</option>
+              <option value="basic">Basic</option>
+              <option value="pro">Pro</option>
+              <option value="elite">Elite</option>
+            </select>
+            <select class="filter-sel" id="userStatusFilter" onchange="loadUsers(1)">
+              <option value="">All Status</option>
+              <option value="banned">Banned</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Credits</th><th>Searches</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+        <div class="pagination" id="usersPagination"></div>
+      </div>
+    </div>
+
+    <!-- SEARCH LOGS -->
+    <div class="tab-panel" id="tab-searches">
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Search Logs</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input class="search-input-sm" type="text" id="searchLogsQ" placeholder="Search query…" oninput="debounce(()=>loadSearchLogs(1),400)()"/>
+            <select class="filter-sel" id="searchLogsType" onchange="loadSearchLogs(1)">
+              <option value="">All Types</option>
+              <option value="phone">Phone</option>
+              <option value="vehicle">Vehicle</option>
+              <option value="telegram">Telegram</option>
+              <option value="ip">IP</option>
+              <option value="gst">GST</option>
+              <option value="instagram">Instagram</option>
+              <option value="imei">IMEI</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>User</th><th>Type</th><th>Query</th><th>Status</th><th>Credits</th><th>IP</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="searchLogsBody"></tbody>
+        </table>
+        <div class="pagination" id="searchLogsPagination"></div>
+      </div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="tab-panel" id="tab-payments">
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">All Payments</div></div>
+        <table>
+          <thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="paymentsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BANNERS -->
+    <div class="tab-panel" id="tab-banners">
+      <div class="new-banner-card">
+        <h3>📢 Send New Broadcast Banner</h3>
+        <div class="form-field"><label>Title</label><input type="text" id="bannerTitle" placeholder="e.g. System Maintenance Tonight"/></div>
+        <div class="form-field"><label>Message</label><textarea id="bannerMsg" placeholder="Detailed message…"></textarea></div>
+        <div class="form-row">
+          <div class="form-field"><label>Type</label>
+            <select id="bannerType"><option value="info">Info (Blue)</option><option value="warning">Warning (Yellow)</option><option value="success">Success (Green)</option><option value="danger">Danger (Red)</option></select>
+          </div>
+          <div class="form-field"><label>Target</label>
+            <select id="bannerTarget"><option value="all">All Users</option><option value="free">Free Plan Only</option><option value="basic">Basic Plan</option><option value="pro">Pro Plan</option><option value="elite">Elite Plan</option></select>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <input type="checkbox" id="bannerDismissible" checked/>
+          <label for="bannerDismissible" style="font-size:0.845rem;color:var(--muted)">Users can dismiss this banner</label>
+        </div>
+        <button class="btn-primary" onclick="createBanner()">Send Banner</button>
+        <div class="err" id="bannerErr"></div>
+        <div class="suc" id="bannerSuc"></div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">Active Banners</div></div>
+        <table>
+          <thead><tr><th>Title</th><th>Type</th><th>Target</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody id="bannersBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- User detail modal -->
+<div class="modal-bg" id="userModal">
+  <div class="modal">
+    <h2 id="modalUserName">User Actions</h2>
+    <div id="modalUserInfo" style="font-size:0.82rem;color:var(--muted);margin-bottom:16px"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn-sm btn-green" id="banBtn" onclick="adminAction('ban')">Ban User</button>
+      <button class="btn-sm btn-green" id="unbanBtn" onclick="adminAction('unban')">Unban User</button>
+      <button class="btn-sm btn-blue" onclick="adminAction('activate')">Activate</button>
+      <button class="btn-sm btn-red" onclick="adminAction('deactivate')">Deactivate</button>
+      <button class="btn-sm btn-purple" onclick="adminAction('make-admin')">Make Admin</button>
+    </div>
+
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+      <div class="form-field"><label>Add/Deduct Credits</label>
+        <input type="number" id="creditAmount" placeholder="e.g. 50 or -10"/>
+      </div>
+      <button class="btn-sm btn-yellow" style="height:36px;width:100%" onclick="adminAddCredits()">Update Credits</button>
+    </div>
+
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:16px">
+      <div class="form-field"><label>Change Plan</label>
+        <select id="changePlanSel"><option value="free">Free</option><option value="basic">Basic</option><option value="pro">Pro</option><option value="elite">Elite</option></select>
+      </div>
+      <div class="form-field"><label>Duration (days)</label><input type="number" id="planDays" value="30" min="1"/></div>
+      <button class="btn-sm btn-blue" style="height:36px;width:100%" onclick="adminChangePlan()">Change Plan</button>
+    </div>
+
+    <div class="err" id="modalErr"></div>
+    <div class="suc" id="modalSuc"></div>
+    <div class="modal-btns"><button class="btn-modal-cancel" onclick="closeModal()">Close</button></div>
+  </div>
+</div>
+
+<!-- Ban reason modal -->
+<div class="modal-bg" id="banModal">
+  <div class="modal">
+    <h2>Ban User</h2>
+    <div class="form-field"><label>Ban Reason</label><input type="text" id="banReason" placeholder="e.g. Terms violation, abuse…"/></div>
+    <div class="err" id="banErr"></div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="document.getElementById('banModal').classList.remove('show')">Cancel</button>
+      <button class="btn-modal-ok" onclick="confirmBan()" style="background:var(--red)">Confirm Ban</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const TOKEN = localStorage.getItem('intelToken');
+if (!TOKEN) { window.location.href = 'login.html'; }
+function authHdr() { return { 'Content-Type':'application/json', 'Authorization':'Bearer '+TOKEN }; }
+
+let modalUserId = null;
+let modalUserData = null;
+
+// ── OVERVIEW ──────────────────────────────────────────────────────
+async function loadOverview() {
+  const r = await fetch(API+'/api/admin/stats', { headers: authHdr() });
+  if (r.status === 403) { alert('Admin access required.'); window.location.href = 'dashboard.html'; return; }
+  const d = await r.json();
+  document.getElementById('statUsers').textContent    = d.users||0;
+  document.getElementById('statSearches').textContent = d.searches||0;
+  document.getElementById('statRevenue').textContent  = '₹'+(d.revenue||0);
+  document.getElementById('statBanned').textContent   = d.banned||0;
+
+  const planClass = { free:'tag-muted', basic:'tag-blue', pro:'tag-purple', elite:'tag-yellow' };
+  document.getElementById('recentUsersBody').innerHTML = (d.recentUsers||[]).map(u => `
+    <tr>
+      <td>${u.name}</td>
+      <td style="font-size:0.78rem;color:var(--muted)">${u.email}</td>
+      <td><span class="tag ${planClass[u.plan]||'tag-muted'}">${u.plan||'free'}</span></td>
+      <td class="mono">${u.credits}</td>
+      <td><span class="tag ${u.isBanned?'tag-red':u.isActive?'tag-green':'tag-muted'}">${u.isBanned?'Banned':u.isActive?'Active':'Inactive'}</span></td>
+      <td style="font-size:0.78rem;color:var(--muted)">${new Date(u.createdAt).toLocaleDateString('en-IN')}</td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No users.</td></tr>';
+
+  const typeTag = { phone:'tag-blue',vehicle:'tag-green',telegram:'tag-purple',ip:'tag-yellow',gst:'tag-purple',instagram:'tag-yellow',imei:'tag-muted' };
+  document.getElementById('recentSearchesBody').innerHTML = (d.recentSearches||[]).map(s => `
+    <tr>
+      <td style="font-size:0.78rem;color:var(--muted)">${s.userEmail||'—'}</td>
+      <td><span class="tag ${typeTag[s.searchType]||'tag-muted'}">${s.searchType}</span></td>
+      <td class="mono">${s.query}</td>
+      <td><span class="tag ${s.success?'tag-green':'tag-red'}">${s.success?'OK':'FAIL'}</span></td>
+      <td style="font-size:0.78rem;color:var(--muted)">${new Date(s.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No searches.</td></tr>';
+}
+
+// ── USERS ─────────────────────────────────────────────────────────
+async function loadUsers(page=1) {
+  const q      = document.getElementById('userSearch')?.value||'';
+  const plan   = document.getElementById('userPlanFilter')?.value||'';
+  const status = document.getElementById('userStatusFilter')?.value||'';
+  const params = new URLSearchParams({ page, q, plan, status });
+  const r = await fetch(API+'/api/admin/users?'+params, { headers: authHdr() });
+  const d = await r.json();
+  const planClass = { free:'tag-muted', basic:'tag-blue', pro:'tag-purple', elite:'tag-yellow' };
+
+  document.getElementById('usersBody').innerHTML = (d.users||[]).map(u => `
+    <tr>
+      <td style="font-weight:500">${u.name}</td>
+      <td style="font-size:0.75rem;color:var(--muted)">${u.email}</td>
+      <td><span class="tag ${planClass[u.plan]||'tag-muted'}">${u.plan||'free'}</span></td>
+      <td class="mono">${u.credits}</td>
+      <td class="mono">${u.totalSearches||0}</td>
+      <td><span class="tag ${u.isBanned?'tag-red':u.isActive?'tag-green':'tag-muted'}">${u.isBanned?'Banned':u.isActive?'Active':'Inactive'}</span></td>
+      <td><div class="actions">
+        <button class="btn-sm btn-blue" onclick="openUserModal('${u._id}','${u.name.replace(/'/g,"\\'")}','${u.email}','${u.plan}',${u.isBanned},${u.isActive},${u.credits})">Manage</button>
+      </div></td>
+    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">No users found.</td></tr>';
+
+  renderPagination('usersPagination', d.page, d.pages, 'loadUsers');
+}
+
+function openUserModal(id, name, email, plan, isBanned, isActive, credits) {
+  modalUserId = id;
+  modalUserData = { name, email, plan, isBanned, isActive, credits };
+  document.getElementById('modalUserName').textContent = name;
+  document.getElementById('modalUserInfo').textContent = `${email} · Plan: ${plan} · Credits: ${credits}`;
+  document.getElementById('changePlanSel').value = plan;
+  document.getElementById('modalErr').style.display = 'none';
+  document.getElementById('modalSuc').style.display = 'none';
+  document.getElementById('userModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('userModal').classList.remove('show'); }
+
+async function adminAction(action) {
+  if (!modalUserId) return;
+  if (action === 'ban') { document.getElementById('banModal').classList.add('show'); return; }
+  const endpoint = `/api/admin/users/${modalUserId}/${action}`;
+  const r = await fetch(API+endpoint, { method:'POST', headers: authHdr() });
+  const d = await r.json();
+  showModalResult(r.ok, d.message);
+  if (r.ok) loadUsers(1);
+}
+
+async function confirmBan() {
+  const reason = document.getElementById('banReason').value.trim();
+  const r = await fetch(API+`/api/admin/users/${modalUserId}/ban`, {
+    method:'POST', headers: authHdr(), body: JSON.stringify({ reason })
+  });
+  const d = await r.json();
+  document.getElementById('banModal').classList.remove('show');
+  showModalResult(r.ok, d.message);
+  if (r.ok) loadUsers(1);
+}
+
+async function adminAddCredits() {
+  const amount = parseInt(document.getElementById('creditAmount').value);
+  if (isNaN(amount)) { showModalResult(false, 'Enter a valid number.'); return; }
+  const r = await fetch(API+`/api/admin/users/${modalUserId}/credits`, {
+    method:'POST', headers: authHdr(), body: JSON.stringify({ amount })
+  });
+  const d = await r.json();
+  showModalResult(r.ok, d.message);
+  if (r.ok) { loadUsers(1); }
+}
+
+async function adminChangePlan() {
+  const plan = document.getElementById('changePlanSel').value;
+  const days = parseInt(document.getElementById('planDays').value)||30;
+  const r = await fetch(API+`/api/admin/users/${modalUserId}/plan`, {
+    method:'POST', headers: authHdr(), body: JSON.stringify({ plan, days })
+  });
+  const d = await r.json();
+  showModalResult(r.ok, d.message);
+  if (r.ok) loadUsers(1);
+}
+
+function showModalResult(ok, msg) {
+  document.getElementById('modalErr').style.display = ok ? 'none' : 'block';
+  document.getElementById('modalSuc').style.display = ok ? 'block' : 'none';
+  document.getElementById(ok?'modalSuc':'modalErr').textContent = msg;
+}
+
+// ── SEARCH LOGS ───────────────────────────────────────────────────
+async function loadSearchLogs(page=1) {
+  const q    = document.getElementById('searchLogsQ')?.value||'';
+  const type = document.getElementById('searchLogsType')?.value||'';
+  const params = new URLSearchParams({ page, q, type });
+  const r = await fetch(API+'/api/admin/searches?'+params, { headers: authHdr() });
+  const d = await r.json();
+  const typeTag = { phone:'tag-blue',vehicle:'tag-green',telegram:'tag-purple',ip:'tag-yellow',gst:'tag-purple',instagram:'tag-yellow',imei:'tag-muted' };
+
+  document.getElementById('searchLogsBody').innerHTML = (d.logs||[]).map(s => `
+    <tr>
+      <td style="font-size:0.72rem;color:var(--muted)">${s.userEmail||'—'}</td>
+      <td><span class="tag ${typeTag[s.searchType]||'tag-muted'}">${s.searchType}</span></td>
+      <td class="mono" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.query}</td>
+      <td><span class="tag ${s.success?'tag-green':'tag-red'}">${s.success?'OK':'FAIL'}</span></td>
+      <td class="mono">${s.creditsUsed}</td>
+      <td style="font-size:0.72rem;color:var(--muted)">${s.ipAddress||'—'}</td>
+      <td style="font-size:0.72rem;color:var(--muted)">${new Date(s.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+      <td><div class="actions">
+        <button class="btn-sm btn-red" onclick="deleteSearch('${s._id}')">Delete</button>
+      </div></td>
+    </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">No logs found.</td></tr>';
+
+  renderPagination('searchLogsPagination', d.page, d.pages, 'loadSearchLogs');
+}
+
+async function deleteSearch(id) {
+  if (!confirm('Delete this search log?')) return;
+  await fetch(API+`/api/admin/searches/${id}`, { method:'DELETE', headers: authHdr() });
+  loadSearchLogs();
+}
+
+// ── PAYMENTS ──────────────────────────────────────────────────────
+async function loadPayments() {
+  const r = await fetch(API+'/api/admin/payments', { headers: authHdr() });
+  const d = await r.json();
+  const statusTag = { paid:'tag-green', pending:'tag-yellow', failed:'tag-red' };
+
+  document.getElementById('paymentsBody').innerHTML = (d||[]).map(p => `
+    <tr>
+      <td style="font-size:0.78rem;color:var(--muted)">${p.userEmail||'—'}</td>
+      <td><span class="tag tag-blue">${p.type}</span></td>
+      <td style="font-weight:600;color:var(--text)">₹${p.amount}</td>
+      <td><span class="tag ${statusTag[p.status]||'tag-muted'}">${p.status}</span></td>
+      <td style="font-size:0.72rem;color:var(--muted)">${new Date(p.createdAt).toLocaleString('en-IN')}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No payments.</td></tr>';
+}
+
+// ── BANNERS ───────────────────────────────────────────────────────
+async function createBanner() {
+  const title       = document.getElementById('bannerTitle').value.trim();
+  const message     = document.getElementById('bannerMsg').value.trim();
+  const type        = document.getElementById('bannerType').value;
+  const targetPlan  = document.getElementById('bannerTarget').value;
+  const dismissible = document.getElementById('bannerDismissible').checked;
+  if (!title || !message) { showBannerResult(false, 'Title and message are required.'); return; }
+
+  const r = await fetch(API+'/api/admin/banners', {
+    method:'POST', headers: authHdr(), body: JSON.stringify({ title, message, type, targetPlan, dismissible })
+  });
+  const d = await r.json();
+  showBannerResult(r.ok, r.ok ? 'Banner sent successfully!' : d.message);
+  if (r.ok) { document.getElementById('bannerTitle').value = ''; document.getElementById('bannerMsg').value = ''; loadBanners(); }
+}
+
+function showBannerResult(ok, msg) {
+  document.getElementById('bannerErr').style.display = ok ? 'none' : 'block';
+  document.getElementById('bannerSuc').style.display = ok ? 'block' : 'none';
+  document.getElementById(ok?'bannerSuc':'bannerErr').textContent = msg;
+}
+
+async function loadBanners() {
+  const r = await fetch(API+'/api/admin/banners', { headers: authHdr() });
+  const banners = await r.json();
+  const typeTag = { info:'tag-blue', warning:'tag-yellow', success:'tag-green', danger:'tag-red' };
+
+  document.getElementById('bannersBody').innerHTML = (banners||[]).map(b => `
+    <tr>
+      <td style="font-weight:500">${b.title}</td>
+      <td><span class="tag ${typeTag[b.type]||'tag-blue'}">${b.type}</span></td>
+      <td><span class="tag tag-muted">${b.targetPlan}</span></td>
+      <td style="font-size:0.72rem;color:var(--muted)">${new Date(b.createdAt).toLocaleDateString('en-IN')}</td>
+      <td><div class="actions">
+        <button class="btn-sm btn-yellow" onclick="toggleBanner('${b._id}',${!b.isActive})">${b.isActive?'Disable':'Enable'}</button>
+        <button class="btn-sm btn-red" onclick="deleteBanner('${b._id}')">Delete</button>
+      </div></td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No banners.</td></tr>';
+}
+
+async function toggleBanner(id, isActive) {
+  await fetch(API+`/api/admin/banners/${id}`, { method:'PUT', headers: authHdr(), body: JSON.stringify({ isActive }) });
+  loadBanners();
+}
+
+async function deleteBanner(id) {
+  if (!confirm('Delete this banner?')) return;
+  await fetch(API+`/api/admin/banners/${id}`, { method:'DELETE', headers: authHdr() });
+  loadBanners();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function renderPagination(containerId, currentPage, totalPages, fn) {
+  const c = document.getElementById(containerId);
+  if (!c || totalPages <= 1) { if (c) c.innerHTML = ''; return; }
+  let html = '';
+  for (let i=1; i<=totalPages; i++) html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="${fn}(${i})">${i}</button>`;
+  c.innerHTML = html;
+}
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (btn) btn.classList.add('active');
+  const titles = { overview:'Admin Overview', users:'User Management', searches:'Search Logs', payments:'Payments', banners:'Broadcast Banners' };
+  document.getElementById('pageTitle').textContent = titles[tab]||tab;
+  if (tab === 'overview') loadOverview();
+  else if (tab === 'users') loadUsers(1);
+  else if (tab === 'searches') loadSearchLogs(1);
+  else if (tab === 'payments') loadPayments();
+  else if (tab === 'banners') loadBanners();
+}
+
+function logout() { localStorage.removeItem('intelToken'); localStorage.removeItem('intelUser'); window.location.href = 'login.html'; }
+
+loadOverview();
+</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Register — IntelGrid</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0A0E1A;--bg2:#0F1629;--border:#1E2D50;--accent:#3B82F6;--accent2:#06B6D4;--green:#10B981;--red:#EF4444;--text:#E2E8F0;--muted:#64748B}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:44px 40px;max-width:440px;width:100%;animation:fadeUp 0.5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:32px;justify-content:center}
+.logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:500;color:white}
+.logo-text{font-size:1.1rem;font-weight:700;letter-spacing:1.5px}
+h1{font-size:1.6rem;font-weight:700;margin-bottom:6px;text-align:center}
+.sub{font-size:0.845rem;color:var(--muted);font-weight:300;text-align:center;margin-bottom:28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:0.7rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;height:46px;background:#0A0E1A;border:1px solid var(--border);border-radius:8px;padding:0 14px;font-family:'Inter',sans-serif;font-size:0.9rem;color:var(--text);outline:none;transition:border-color 0.2s}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.field input::placeholder{color:var(--muted)}
+.ref-box{background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:12px;margin-bottom:16px}
+.ref-box label{display:block;font-size:0.68rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:5px}
+.ref-box input{width:100%;height:38px;background:transparent;border:1px solid rgba(59,130,246,0.2);border-radius:6px;padding:0 12px;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--text);outline:none;text-transform:uppercase}
+.ref-box input:focus{border-color:var(--accent)}
+
+/* OTP section */
+.otp-section{display:none}
+.otp-info{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:0.845rem;color:#6EE7B7;line-height:1.6}
+.otp-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
+.otp-input{width:46px;height:52px;background:#0A0E1A;border:1.5px solid var(--border);border-radius:8px;font-size:1.4rem;font-weight:600;text-align:center;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;transition:border-color 0.2s}
+.otp-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.resend{text-align:center;font-size:0.78rem;color:var(--muted);margin-bottom:16px}
+.resend button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.78rem;font-family:'Inter',sans-serif}
+.resend button:disabled{color:var(--muted);cursor:not-allowed}
+.timer{font-family:'JetBrains Mono',monospace;color:var(--accent)}
+
+.btn{width:100%;height:48px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;border-radius:9px;font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;margin-top:4px}
+.btn:hover{opacity:0.9;transform:translateY(-1px)}
+.btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none}
+.err{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:#FCA5A5;padding:11px 14px;font-size:0.845rem;margin-top:12px;display:none;border-left:3px solid var(--red)}
+.suc{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:7px;color:#6EE7B7;padding:11px 14px;font-size:0.845rem;margin-top:12px;display:none}
+.login-link{text-align:center;font-size:0.82rem;color:var(--muted);margin-top:20px}
+.login-link a{color:var(--accent);text-decoration:none;font-weight:500}
+.password-toggle{position:relative}
+.password-toggle input{padding-right:44px}
+.toggle-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);background:none;border:none;font-size:1rem;padding:4px}
+.strength{height:3px;border-radius:2px;margin-top:6px;background:var(--border);overflow:hidden;transition:all 0.3s}
+.strength-bar{height:100%;border-radius:2px;transition:all 0.3s;width:0}
+.hint{font-size:0.7rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="card">
+  <a href="/" class="logo">
+    <div class="logo-mark">IG</div>
+    <span class="logo-text">INTELGRID</span>
+  </a>
+
+  <!-- STEP 1: Registration form -->
+  <div id="step1">
+    <h1>Create Account</h1>
+    <div class="sub">5 free credits on signup. No card required.</div>
+
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" id="name" placeholder="Your full name" autocomplete="name"/>
+    </div>
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="email" placeholder="your@email.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <div class="password-toggle">
+        <input type="password" id="password" placeholder="Min 6 characters" autocomplete="new-password" oninput="checkStrength()"/>
+        <button class="toggle-eye" onclick="togglePw('password',this)" type="button">👁</button>
+      </div>
+      <div class="strength"><div class="strength-bar" id="strengthBar"></div></div>
+      <div class="hint" id="strengthHint"></div>
+    </div>
+    <div class="ref-box">
+      <label>Referral Code (optional)</label>
+      <input type="text" id="refCode" placeholder="e.g. ABC123" maxlength="8"/>
+    </div>
+    <button class="btn" id="registerBtn" onclick="register()">Create Account & Send OTP</button>
+    <div class="err" id="err1"></div>
+  </div>
+
+  <!-- STEP 2: OTP verification -->
+  <div class="otp-section" id="step2">
+    <h1>Verify Email</h1>
+    <div class="otp-info" id="otpInfo"></div>
+    <div class="otp-inputs">
+      <input class="otp-input" maxlength="1" id="o1" oninput="otpMove(this,'o2')" onkeydown="otpBack(event,this,'')"/>
+      <input class="otp-input" maxlength="1" id="o2" oninput="otpMove(this,'o3')" onkeydown="otpBack(event,this,'o1')"/>
+      <input class="otp-input" maxlength="1" id="o3" oninput="otpMove(this,'o4')" onkeydown="otpBack(event,this,'o2')"/>
+      <input class="otp-input" maxlength="1" id="o4" oninput="otpMove(this,'o5')" onkeydown="otpBack(event,this,'o3')"/>
+      <input class="otp-input" maxlength="1" id="o5" oninput="otpMove(this,'o6')" onkeydown="otpBack(event,this,'o4')"/>
+      <input class="otp-input" maxlength="1" id="o6" oninput="otpMove(this,'')"   onkeydown="otpBack(event,this,'o5')"/>
+    </div>
+    <div class="resend">Didn't get it? <button id="resendBtn" onclick="resendOtp()">Resend</button> <span class="timer" id="timer"></span></div>
+    <button class="btn" id="verifyBtn" onclick="verifyOtp()">Verify & Activate Account</button>
+    <div class="err" id="err2"></div>
+    <div class="suc" id="suc2"></div>
+  </div>
+
+  <div class="login-link">Already have an account? <a href="login.html">Login</a></div>
+</div>
+
+<script>
+const API = '';
+let currentEmail = '';
+let timerInterval;
+
+async function register() {
+  const name     = document.getElementById('name').value.trim();
+  const email    = document.getElementById('email').value.trim().toLowerCase();
+  const password = document.getElementById('password').value;
+  const refCode  = document.getElementById('refCode').value.trim().toUpperCase();
+
+  if (!name || !email || !password) { showErr('err1', 'All fields are required.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('err1', 'Enter a valid email address.'); return; }
+  if (password.length < 6) { showErr('err1', 'Password must be at least 6 characters.'); return; }
+
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true; btn.textContent = 'Sending OTP...';
+  hideErr('err1');
+
+  try {
+    const r = await fetch(API + '/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, referralCode: refCode || null })
+    });
+    const d = await r.json();
+    if (!r.ok) { showErr('err1', d.message); btn.disabled = false; btn.textContent = 'Create Account & Send OTP'; return; }
+
+    currentEmail = email;
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    document.getElementById('otpInfo').textContent = `We've sent a 6-digit OTP to ${email}. Enter it below to activate your account. Valid for 10 minutes.`;
+    startTimer(600);
+    document.getElementById('o1').focus();
+  } catch(e) {
+    showErr('err1', 'Network error. Please check your connection.');
+    btn.disabled = false; btn.textContent = 'Create Account & Send OTP';
+  }
+}
+
+async function verifyOtp() {
+  const otp = ['o1','o2','o3','o4','o5','o6'].map(id => document.getElementById(id).value).join('');
+  if (otp.length !== 6) { showErr('err2', 'Enter all 6 digits.'); return; }
+
+  const btn = document.getElementById('verifyBtn');
+  btn.disabled = true; btn.textContent = 'Verifying...';
+  hideErr('err2');
+
+  try {
+    const r = await fetch(API + '/api/auth/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentEmail, otp })
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      showErr('err2', d.message);
+      btn.disabled = false; btn.textContent = 'Verify & Activate Account';
+      // Clear OTP inputs
+      ['o1','o2','o3','o4','o5','o6'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('o1').focus();
+      return;
+    }
+    // Save token and redirect
+    localStorage.setItem('intelToken', d.token);
+    localStorage.setItem('intelUser', JSON.stringify(d.user));
+    document.getElementById('suc2').textContent = 'Account verified! Redirecting to dashboard...';
+    document.getElementById('suc2').style.display = 'block';
+    setTimeout(() => window.location.href = 'dashboard.html', 1200);
+  } catch(e) {
+    showErr('err2', 'Network error. Please try again.');
+    btn.disabled = false; btn.textContent = 'Verify & Activate Account';
+  }
+}
+
+async function resendOtp() {
+  const btn = document.getElementById('resendBtn');
+  btn.disabled = true;
+  try {
+    const r = await fetch(API + '/api/auth/resend-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentEmail })
+    });
+    const d = await r.json();
+    if (r.ok) {
+      hideErr('err2');
+      document.getElementById('suc2').textContent = 'New OTP sent!';
+      document.getElementById('suc2').style.display = 'block';
+      setTimeout(() => document.getElementById('suc2').style.display = 'none', 3000);
+      startTimer(600);
+    } else {
+      showErr('err2', d.message);
+      btn.disabled = false;
+    }
+  } catch(e) { btn.disabled = false; }
+}
+
+function startTimer(seconds) {
+  clearInterval(timerInterval);
+  const timerEl = document.getElementById('timer');
+  const resendBtn = document.getElementById('resendBtn');
+  resendBtn.disabled = true;
+  let remaining = seconds;
+  timerEl.textContent = `(${Math.floor(remaining/60)}:${String(remaining%60).padStart(2,'0')})`;
+  timerInterval = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      timerEl.textContent = '';
+      resendBtn.disabled = false;
+    } else {
+      timerEl.textContent = `(${Math.floor(remaining/60)}:${String(remaining%60).padStart(2,'0')})`;
+    }
+  }, 1000);
+}
+
+function otpMove(el, nextId) {
+  if (el.value.length === 1 && nextId) document.getElementById(nextId).focus();
+}
+function otpBack(e, el, prevId) {
+  if (e.key === 'Backspace' && !el.value && prevId) document.getElementById(prevId).focus();
+}
+
+function checkStrength() {
+  const pw = document.getElementById('password').value;
+  const bar = document.getElementById('strengthBar');
+  const hint = document.getElementById('strengthHint');
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const levels = [
+    { pct: '0%', color: 'transparent', label: '' },
+    { pct: '25%', color: '#EF4444', label: 'Weak' },
+    { pct: '50%', color: '#F59E0B', label: 'Fair' },
+    { pct: '75%', color: '#3B82F6', label: 'Good' },
+    { pct: '100%', color: '#10B981', label: 'Strong' },
+  ];
+  const level = levels[Math.min(score, 4)];
+  bar.style.width = level.pct;
+  bar.style.background = level.color;
+  hint.textContent = level.label;
+  hint.style.color = level.color;
+}
+
+function togglePw(id, btn) {
+  const input = document.getElementById(id);
+  input.type = input.type === 'password' ? 'text' : 'password';
+  btn.textContent = input.type === 'password' ? '👁' : '🙈';
+}
+
+function showErr(id, msg) { const e = document.getElementById(id); e.textContent = msg; e.style.display = 'block'; }
+function hideErr(id) { document.getElementById(id).style.display = 'none'; }
+
+// Pre-fill referral from URL
+const ref = new URLSearchParams(window.location.search).get('ref');
+if (ref) document.getElementById('refCode').value = ref.toUpperCase();
+if (localStorage.getItem('intelToken')) window.location.href = 'dashboard.html';
+</script>
+</body>
+</html>

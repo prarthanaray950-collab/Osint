@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Dashboard — IntelGrid</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0A0E1A;--bg2:#0F1629;--bg3:#141C35;--border:#1E2D50;--accent:#3B82F6;--accent2:#06B6D4;--green:#10B981;--red:#EF4444;--yellow:#F59E0B;--text:#E2E8F0;--muted:#64748B;--sidebar:220px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:30;transition:transform 0.3s}
+.sidebar-logo{display:flex;align-items:center;gap:9px;padding:20px 20px 0;text-decoration:none;margin-bottom:8px}
+.logo-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:500;color:white;flex-shrink:0}
+.logo-text{font-size:1rem;font-weight:700;letter-spacing:1px}
+.sidebar-divider{height:1px;background:var(--border);margin:12px 16px}
+nav.sidebar-nav{flex:1;padding:0 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:0.845rem;font-weight:400;color:var(--muted);transition:all 0.15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+.nav-item.active{background:rgba(59,130,246,0.12);color:var(--accent);font-weight:500}
+.nav-icon{font-size:1rem;width:22px;text-align:center;flex-shrink:0}
+.sidebar-bottom{padding:14px 10px}
+.user-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px}
+.user-name{font-size:0.845rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-meta{font-size:0.7rem;color:var(--muted);margin-top:2px}
+.user-credits{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.credit-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:var(--accent);font-size:0.7rem;font-weight:600;padding:3px 8px;border-radius:5px;font-family:'JetBrains Mono',monospace}
+.plan-badge-sm{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;padding:2px 8px;border-radius:4px;font-weight:600}
+.plan-free{background:rgba(100,116,139,0.15);color:var(--muted)}
+.plan-basic{background:rgba(59,130,246,0.15);color:var(--accent)}
+.plan-pro{background:rgba(6,182,212,0.15);color:var(--accent2)}
+.plan-elite{background:rgba(245,158,11,0.15);color:var(--yellow)}
+.btn-logout{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;margin-top:8px;background:none;border:none;color:var(--muted);font-size:0.8rem;cursor:pointer;border-radius:7px;transition:all 0.15s}
+.btn-logout:hover{color:var(--red);background:rgba(239,68,68,0.06)}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:60px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:var(--bg2);position:sticky;top:0;z-index:20}
+.topbar-title{font-size:1rem;font-weight:600;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-status{display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--muted)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
+.content{flex:1;padding:28px;overflow-y:auto}
+
+/* TABS */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* BANNERS */
+.banner{border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;animation:fadeUp 0.4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.banner.info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25)}
+.banner.warning{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25)}
+.banner.success{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25)}
+.banner.danger{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25)}
+.banner-title{font-size:0.845rem;font-weight:600;margin-bottom:3px}
+.banner.info .banner-title{color:#93C5FD}
+.banner.warning .banner-title{color:#FCD34D}
+.banner.success .banner-title{color:#6EE7B7}
+.banner.danger .banner-title{color:#FCA5A5}
+.banner-msg{font-size:0.8rem;color:var(--muted);line-height:1.5}
+.banner-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:0;flex-shrink:0}
+
+/* STATS CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;right:-10px;top:-10px;width:70px;height:70px;border-radius:50%;opacity:0.06}
+.stat-card.blue::before{background:var(--accent)}
+.stat-card.cyan::before{background:var(--accent2)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.yellow::before{background:var(--yellow)}
+.stat-label{font-size:0.72rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-val{font-size:1.8rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace}
+.stat-sub{font-size:0.72rem;color:var(--muted);margin-top:4px}
+
+/* SEARCH SECTION */
+.search-type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.type-btn{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative}
+.type-btn:hover{border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.05)}
+.type-btn.selected{border-color:var(--accent);background:rgba(59,130,246,0.1)}
+.type-btn .t-icon{font-size:1.5rem;margin-bottom:6px}
+.type-btn .t-name{font-size:0.75rem;font-weight:500;color:var(--text)}
+.type-btn .t-cost{font-size:0.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:3px}
+.type-btn .t-cost span{color:var(--accent)}
+
+.search-box-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.search-input-row{display:flex;gap:10px}
+.search-input{flex:1;height:48px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:0 16px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:var(--text);outline:none;transition:border-color 0.2s}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.search-input::placeholder{color:var(--muted);font-family:'Inter',sans-serif;font-size:0.845rem}
+.btn-search{height:48px;padding:0 24px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;border-radius:9px;font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.btn-search:hover{opacity:0.9}
+.btn-search:disabled{background:var(--border);color:var(--muted);cursor:not-allowed}
+.search-hint{font-size:0.75rem;color:var(--muted);margin-top:10px}
+
+/* RESULT */
+.result-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:20px;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;white-space:pre-wrap;word-break:break-all;line-height:1.8;color:#A0B4CC;display:none;max-height:500px;overflow-y:auto;position:relative}
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-family:'Inter',sans-serif}
+.result-title{font-size:0.845rem;font-weight:600;color:var(--text)}
+.result-meta{font-size:0.72rem;color:var(--muted)}
+.btn-copy{height:30px;padding:0 12px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:6px;color:var(--accent);font-size:0.75rem;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s}
+.btn-copy:hover{background:var(--accent);color:white}
+.loader{display:none;padding:24px;text-align:center}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-box{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:9px;padding:14px 16px;font-size:0.845rem;color:#FCA5A5;display:none;margin-top:12px}
+
+/* HISTORY */
+.history-filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-select{height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:0 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.82rem;outline:none}
+.filter-select option{background:var(--bg2)}
+.history-table{width:100%;border-collapse:collapse}
+.history-table th{text-align:left;font-size:0.7rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border)}
+.history-table td{padding:12px 14px;border-bottom:1px solid rgba(30,45,80,0.5);font-size:0.845rem;vertical-align:top}
+.history-table tr:hover td{background:rgba(255,255,255,0.02)}
+.tag{display:inline-flex;align-items:center;font-size:0.67rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.tag-phone{background:rgba(59,130,246,0.12);color:#93C5FD}
+.tag-vehicle{background:rgba(16,185,129,0.12);color:#6EE7B7}
+.tag-telegram{background:rgba(6,182,212,0.12);color:#67E8F9}
+.tag-ip{background:rgba(245,158,11,0.12);color:#FCD34D}
+.tag-gst{background:rgba(139,92,246,0.12);color:#C4B5FD}
+.tag-instagram{background:rgba(236,72,153,0.12);color:#F9A8D4}
+.tag-imei{background:rgba(100,116,139,0.12);color:#CBD5E1}
+.tag-success{background:rgba(16,185,129,0.12);color:#6EE7B7}
+.tag-fail{background:rgba(239,68,68,0.12);color:#FCA5A5}
+.query-cell{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pagination{display:flex;gap:8px;margin-top:16px;justify-content:center}
+.page-btn{height:34px;min-width:34px;padding:0 10px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--muted);font-size:0.82rem;cursor:pointer;transition:all 0.2s}
+.page-btn:hover,.page-btn.active{background:var(--accent);border-color:var(--accent);color:white}
+.empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:0.9rem}
+.empty-icon{font-size:2rem;margin-bottom:12px}
+
+/* PROFILE */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.info-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
+.info-card h3{font-size:0.78rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(30,45,80,0.5)}
+.info-row:last-child{border-bottom:none}
+.info-key{font-size:0.78rem;color:var(--muted)}
+.info-val{font-size:0.845rem;font-weight:500;color:var(--text);font-family:'JetBrains Mono',monospace}
+.ref-code-box{background:var(--bg3);border:1px dashed var(--border);border-radius:8px;padding:14px;text-align:center;margin-top:12px}
+.ref-code{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--accent);letter-spacing:4px}
+.ref-sub{font-size:0.72rem;color:var(--muted);margin-top:4px}
+.btn-copy-ref{height:32px;padding:0 14px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:6px;color:var(--accent);font-size:0.75rem;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;margin-top:10px}
+
+/* BILLING */
+.billing-section{margin-bottom:28px}
+.billing-section h3{font-size:0.9rem;font-weight:600;margin-bottom:14px;color:var(--text)}
+.packs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.pack-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all 0.2s;position:relative}
+.pack-card.popular::after{content:'POPULAR';position:absolute;top:-10px;right:14px;background:var(--accent);color:white;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;padding:3px 10px;border-radius:4px}
+.pack-card:hover{border-color:rgba(59,130,246,0.5);transform:translateY(-2px)}
+.pack-credits{font-size:1.5rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;margin-bottom:4px}
+.pack-bonus{font-size:0.72rem;color:var(--green)}
+.pack-price{font-size:1rem;font-weight:600;color:var(--accent);margin:10px 0}
+.btn-buy{width:100%;height:36px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:7px;color:var(--accent);font-size:0.78rem;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
+.btn-buy:hover{background:var(--accent);color:white;border-color:var(--accent)}
+.sub-plans-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.sub-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:22px;position:relative}
+.sub-card.featured{border-color:var(--accent)}
+.sub-name{font-size:1rem;font-weight:600;margin-bottom:4px}
+.sub-price{font-size:1.6rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text);margin-bottom:12px}
+.sub-price span{font-size:0.8rem;font-weight:400;color:var(--muted)}
+.sub-features{list-style:none;margin-bottom:16px;display:flex;flex-direction:column;gap:7px}
+.sub-features li{font-size:0.78rem;color:var(--muted);display:flex;align-items:center;gap:7px}
+.sub-features li::before{content:'✓';color:var(--green);font-weight:700}
+.current-plan-box{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.cp-label{font-size:0.72rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--green)}
+.cp-val{font-size:0.9rem;font-weight:600;color:var(--text);margin-top:2px}
+
+/* MOBILE */
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:50;background:var(--bg2);border:1px solid var(--border);border-radius:8px;width:38px;height:38px;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:29}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hamburger{display:flex}
+  .overlay.show{display:block}
+  .profile-grid{grid-template-columns:1fr}
+  .search-input-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <a href="/" class="sidebar-logo">
+    <div class="logo-mark">IG</div>
+    <span class="logo-text">INTELGRID</span>
+  </a>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <button class="nav-item active" onclick="switchTab('search',this)"><span class="nav-icon">🔍</span> New Search</button>
+    <button class="nav-item" onclick="switchTab('history',this)"><span class="nav-icon">📋</span> Search History</button>
+    <button class="nav-item" onclick="switchTab('billing',this)"><span class="nav-icon">💳</span> Credits & Plans</button>
+    <button class="nav-item" onclick="switchTab('profile',this)"><span class="nav-icon">👤</span> Profile & Refer</button>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-name" id="sidebarName">—</div>
+      <div class="user-meta" id="sidebarEmail">—</div>
+      <div class="user-credits">
+        <span class="credit-badge" id="sidebarCredits">0 CR</span>
+        <span class="plan-badge-sm plan-free" id="sidebarPlan">Free</span>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()">
+      <span>⬡</span> Sign Out
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">New Search</div>
+    <div class="topbar-right">
+      <div class="topbar-status"><div class="status-dot"></div>System Online</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- BANNERS -->
+    <div id="bannersArea"></div>
+
+    <!-- ── SEARCH TAB ── -->
+    <div class="tab-panel active" id="tab-search">
+      <div class="stats-row">
+        <div class="stat-card blue"><div class="stat-label">Total Searches</div><div class="stat-val" id="totalSearches">0</div><div class="stat-sub">All time</div></div>
+        <div class="stat-card cyan"><div class="stat-label">Credits Left</div><div class="stat-val" id="creditsBig">0</div><div class="stat-sub">Available balance</div></div>
+        <div class="stat-card green"><div class="stat-label">Current Plan</div><div class="stat-val" id="planBig" style="font-size:1.2rem;padding-top:4px">Free</div><div class="stat-sub" id="planExpiry">—</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Today's Searches</div><div class="stat-val" id="todaySearches">0</div><div class="stat-sub">Daily usage</div></div>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px">
+        <div style="font-size:0.78rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Select Search Type</div>
+        <div class="search-type-grid" id="typeGrid"></div>
+      </div>
+
+      <div class="search-box-wrap">
+        <div style="font-size:0.78rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Search Query</div>
+        <div class="search-input-row">
+          <input class="search-input" type="text" id="queryInput" placeholder="Select a search type above first…" disabled onkeydown="if(event.key==='Enter')runSearch()"/>
+          <button class="btn-search" id="searchBtn" onclick="runSearch()" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            Search
+          </button>
+        </div>
+        <div class="search-hint" id="searchHint">Choose a module above to begin.</div>
+      </div>
+
+      <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <div style="font-size:0.845rem;color:var(--muted)">Querying intelligence networks…</div>
+      </div>
+      <div class="err-box" id="searchErr"></div>
+
+      <div class="result-box" id="resultBox" style="display:none">
+        <div class="result-header">
+          <div>
+            <div class="result-title" id="resultTitle">Result</div>
+            <div class="result-meta" id="resultMeta"></div>
+          </div>
+          <button class="btn-copy" onclick="copyResult()">Copy</button>
+        </div>
+        <div id="resultContent"></div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY TAB ── -->
+    <div class="tab-panel" id="tab-history">
+      <div class="history-filters">
+        <select class="filter-select" id="historyType" onchange="loadHistory(1)">
+          <option value="">All Types</option>
+          <option value="phone">Phone</option>
+          <option value="vehicle">Vehicle</option>
+          <option value="telegram">Telegram</option>
+          <option value="ip">IP</option>
+          <option value="gst">GST</option>
+          <option value="instagram">Instagram</option>
+          <option value="imei">IMEI</option>
+        </select>
+        <button onclick="loadHistory(1)" style="height:36px;padding:0 16px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:7px;color:var(--accent);font-size:0.82rem;cursor:pointer;font-family:inherit">Refresh</button>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        <table class="history-table" id="historyTable">
+          <thead><tr><th>Type</th><th>Query</th><th>Status</th><th>Credits</th><th>Date</th></tr></thead>
+          <tbody id="historyBody"><tr><td colspan="5" class="empty"><div class="empty-icon">📋</div>No search history yet.</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="historyPagination"></div>
+    </div>
+
+    <!-- ── BILLING TAB ── -->
+    <div class="tab-panel" id="tab-billing">
+      <div class="current-plan-box">
+        <div>
+          <div class="cp-label">Current Plan</div>
+          <div class="cp-val" id="billingPlanName">Free Plan</div>
+        </div>
+        <div style="text-align:right">
+          <div class="cp-label">Credits</div>
+          <div class="cp-val" id="billingCredits">0</div>
+        </div>
+      </div>
+
+      <div class="billing-section">
+        <h3>💳 Buy Credits</h3>
+        <div class="packs-grid" id="packsGrid">
+          <div style="color:var(--muted);font-size:0.845rem">Loading...</div>
+        </div>
+      </div>
+
+      <div class="billing-section">
+        <h3>🚀 Subscription Plans</h3>
+        <div class="sub-plans-grid" id="subPlansGrid">
+          <div style="color:var(--muted);font-size:0.845rem">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROFILE TAB ── -->
+    <div class="tab-panel" id="tab-profile">
+      <div class="profile-grid">
+        <div class="info-card">
+          <h3>Account Info</h3>
+          <div class="info-row"><span class="info-key">Name</span><span class="info-val" id="pName">—</span></div>
+          <div class="info-row"><span class="info-key">Email</span><span class="info-val" id="pEmail" style="font-size:0.75rem">—</span></div>
+          <div class="info-row"><span class="info-key">Plan</span><span class="info-val" id="pPlan">—</span></div>
+          <div class="info-row"><span class="info-key">Credits</span><span class="info-val" id="pCredits">—</span></div>
+          <div class="info-row"><span class="info-key">Member since</span><span class="info-val" id="pJoined">—</span></div>
+          <div class="info-row"><span class="info-key">Last login</span><span class="info-val" id="pLastLogin">—</span></div>
+          <div class="info-row"><span class="info-key">Total searches</span><span class="info-val" id="pSearches">—</span></div>
+        </div>
+        <div class="info-card">
+          <h3>Refer & Earn</h3>
+          <p style="font-size:0.82rem;color:var(--muted);line-height:1.65;margin-bottom:14px">Share your referral code. When someone registers and buys any plan, you earn <strong style="color:var(--green)">3 bonus credits</strong> instantly.</p>
+          <div class="ref-code-box">
+            <div class="ref-code" id="refCode">—</div>
+            <div class="ref-sub">Your referral code</div>
+            <button class="btn-copy-ref" onclick="copyRef()">Copy Code</button>
+            <button class="btn-copy-ref" onclick="copyRefLink()" style="margin-left:6px">Copy Link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const TOKEN = localStorage.getItem('intelToken');
+let user = JSON.parse(localStorage.getItem('intelUser') || '{}');
+let selectedType = null;
+let histPage = 1;
+
+const TYPES = {
+  phone:     { icon:'📱', name:'Phone',     hint:'Enter mobile number e.g. +919876543210',  credits:2 },
+  vehicle:   { icon:'🚗', name:'Vehicle',   hint:'Enter vehicle number e.g. MH02AB1234',    credits:2 },
+  telegram:  { icon:'✈️', name:'Telegram',  hint:'Enter Telegram username or phone number', credits:3 },
+  ip:        { icon:'🌐', name:'IP',        hint:'Enter IP address e.g. 8.8.8.8',           credits:1 },
+  gst:       { icon:'🏢', name:'GST',       hint:'Enter 15-digit GSTIN number',              credits:2 },
+  instagram: { icon:'📸', name:'Instagram', hint:'Enter Instagram username',                credits:3 },
+  imei:      { icon:'📟', name:'IMEI',      hint:'Enter 15-digit IMEI number',              credits:2 },
+};
+
+if (!TOKEN) { window.location.href = 'login.html'; }
+
+function authHdr() { return { 'Content-Type':'application/json', 'Authorization':'Bearer '+TOKEN }; }
+
+async function init() {
+  try {
+    const r = await fetch(API+'/api/user/profile', { headers: authHdr() });
+    if (r.status === 401 || r.status === 403) { logout(); return; }
+    user = await r.json();
+    localStorage.setItem('intelUser', JSON.stringify(user));
+    updateUI();
+    loadBanners();
+    buildTypeGrid();
+    loadBillingPacks();
+  } catch(e) {
+    updateUI(); buildTypeGrid(); loadBillingPacks();
+  }
+}
+
+function updateUI() {
+  const planLabel = (user.plan||'free').charAt(0).toUpperCase()+(user.plan||'free').slice(1);
+  const planClass = 'plan-'+(user.plan||'free');
+
+  document.getElementById('sidebarName').textContent = user.name || 'User';
+  document.getElementById('sidebarEmail').textContent = user.email || '';
+  document.getElementById('sidebarCredits').textContent = (user.credits||0)+' CR';
+  document.getElementById('sidebarPlan').textContent = planLabel;
+  document.getElementById('sidebarPlan').className = 'plan-badge-sm '+planClass;
+  document.getElementById('totalSearches').textContent = user.totalSearches||0;
+  document.getElementById('creditsBig').textContent = user.credits||0;
+  document.getElementById('planBig').textContent = planLabel;
+  document.getElementById('todaySearches').textContent = user.dailySearches||0;
+  document.getElementById('billingPlanName').textContent = planLabel+' Plan';
+  document.getElementById('billingCredits').textContent = (user.credits||0)+' credits';
+  document.getElementById('pName').textContent = user.name||'—';
+  document.getElementById('pEmail').textContent = user.email||'—';
+  document.getElementById('pPlan').textContent = planLabel;
+  document.getElementById('pCredits').textContent = (user.credits||0)+' credits';
+  document.getElementById('pJoined').textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : '—';
+  document.getElementById('pLastLogin').textContent = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-IN') : '—';
+  document.getElementById('pSearches').textContent = user.totalSearches||0;
+  document.getElementById('refCode').textContent = user.referralCode||'—';
+
+  if (user.planExpiresAt && user.plan !== 'free') {
+    const exp = new Date(user.planExpiresAt);
+    document.getElementById('planExpiry').textContent = 'Expires '+exp.toLocaleDateString('en-IN');
+  } else {
+    document.getElementById('planExpiry').textContent = 'No active subscription';
+  }
+}
+
+function buildTypeGrid() {
+  const grid = document.getElementById('typeGrid');
+  grid.innerHTML = Object.entries(TYPES).map(([key, t]) =>
+    `<div class="type-btn" onclick="selectType('${key}')" id="typebtn-${key}">
+      <div class="t-icon">${t.icon}</div>
+      <div class="t-name">${t.name}</div>
+      <div class="t-cost"><span>${t.credits}</span> cr</div>
+    </div>`
+  ).join('');
+}
+
+function selectType(type) {
+  selectedType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('typebtn-'+type).classList.add('selected');
+  const t = TYPES[type];
+  document.getElementById('queryInput').placeholder = t.hint;
+  document.getElementById('queryInput').disabled = false;
+  document.getElementById('searchBtn').disabled = false;
+  document.getElementById('searchHint').textContent = `${t.credits} credit${t.credits>1?'s':''} per search · ${t.hint}`;
+  document.getElementById('queryInput').focus();
+  document.getElementById('resultBox').style.display = 'none';
+  document.getElementById('searchErr').style.display = 'none';
+}
+
+async function runSearch() {
+  if (!selectedType) { alert('Select a search type first.'); return; }
+  const query = document.getElementById('queryInput').value.trim();
+  if (!query) { document.getElementById('queryInput').focus(); return; }
+
+  document.getElementById('loader').style.display = 'block';
+  document.getElementById('resultBox').style.display = 'none';
+  document.getElementById('searchErr').style.display = 'none';
+  document.getElementById('searchBtn').disabled = true;
+
+  try {
+    const r = await fetch(API+'/api/search', {
+      method:'POST',
+      headers: authHdr(),
+      body: JSON.stringify({ type:selectedType, query })
+    });
+    const d = await r.json();
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('searchBtn').disabled = false;
+
+    if (!r.ok) {
+      document.getElementById('searchErr').textContent = d.message||'Search failed.';
+      document.getElementById('searchErr').style.display = 'block';
+      if (d.code === 'NO_CREDITS') {
+        document.getElementById('searchErr').innerHTML = d.message + ' <a href="#" onclick="switchTab(\'billing\',null)" style="color:var(--accent)">Buy credits →</a>';
+      }
+      return;
+    }
+
+    // Display result
+    const content = formatResult(d.data);
+    document.getElementById('resultTitle').textContent = TYPES[selectedType].name+' Analysis — '+query;
+    document.getElementById('resultMeta').textContent = `Credits used: ${d.creditsUsed} · ${new Date().toLocaleTimeString('en-IN')}`;
+    document.getElementById('resultContent').textContent = content;
+    document.getElementById('resultBox').style.display = 'block';
+
+    // Update credits
+    if (d.creditsUsed) { user.credits = Math.max(0, (user.credits||0) - d.creditsUsed); updateUI(); }
+    user.totalSearches = (user.totalSearches||0)+1;
+    user.dailySearches = (user.dailySearches||0)+1;
+    updateUI();
+  } catch(e) {
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('searchBtn').disabled = false;
+    document.getElementById('searchErr').textContent = 'Network error. Check your connection.';
+    document.getElementById('searchErr').style.display = 'block';
+  }
+}
+
+function formatResult(data) {
+  if (typeof data === 'string') return data;
+  if (data?.raw_text) return data.raw_text;
+  return JSON.stringify(data, null, 2);
+}
+
+function copyResult() {
+  const text = document.getElementById('resultContent').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = 'Copied!'; btn.style.background = 'var(--green)'; btn.style.color = 'white';
+    setTimeout(() => { btn.textContent = 'Copy'; btn.style.background=''; btn.style.color=''; }, 2000);
+  });
+}
+
+async function loadHistory(page=1) {
+  histPage = page;
+  const type = document.getElementById('historyType').value;
+  const params = new URLSearchParams({ page, limit:20 });
+  if (type) params.set('type', type);
+  const r = await fetch(API+'/api/search/history?'+params, { headers: authHdr() });
+  const d = await r.json();
+
+  const tagClass = { phone:'tag-phone',vehicle:'tag-vehicle',telegram:'tag-telegram',ip:'tag-ip',gst:'tag-gst',instagram:'tag-instagram',imei:'tag-imei' };
+
+  const tbody = document.getElementById('historyBody');
+  if (!d.logs || d.logs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty"><div class="empty-icon">📋</div>No search history yet.</td></tr>';
+    document.getElementById('historyPagination').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = d.logs.map(l => `
+    <tr>
+      <td><span class="tag ${tagClass[l.searchType]||'tag-imei'}">${l.searchType}</span></td>
+      <td class="query-cell" title="${l.query}">${l.query}</td>
+      <td><span class="tag ${l.success?'tag-success':'tag-fail'}">${l.success?'OK':'FAIL'}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--muted)">${l.creditsUsed}</td>
+      <td style="font-size:0.78rem;color:var(--muted)">${new Date(l.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
+    </tr>`).join('');
+
+  // Pagination
+  const pgDiv = document.getElementById('historyPagination');
+  if (d.pages <= 1) { pgDiv.innerHTML = ''; return; }
+  let pgHtml = '';
+  for (let i=1; i<=d.pages; i++) {
+    pgHtml += `<button class="page-btn ${i===page?'active':''}" onclick="loadHistory(${i})">${i}</button>`;
+  }
+  pgDiv.innerHTML = pgHtml;
+}
+
+async function loadBillingPacks() {
+  const r = await fetch(API+'/api/payment/packs');
+  const d = await r.json();
+
+  document.getElementById('packsGrid').innerHTML = (d.credits||[]).map(p => `
+    <div class="pack-card ${p.popular?'popular':''}">
+      <div class="pack-credits">${p.credits}</div>
+      <div style="font-size:0.75rem;color:var(--muted)">Credits</div>
+      ${p.bonus?`<div class="pack-bonus">+${p.bonus} bonus</div>`:''}
+      <div class="pack-price">₹${p.price}</div>
+      <button class="btn-buy" onclick="buyItem('credits','${p.id}')">Buy Now</button>
+    </div>`).join('');
+
+  const planColors = { basic:'', pro:'featured', elite:'' };
+  document.getElementById('subPlansGrid').innerHTML = (d.subscriptions||[]).map(p => `
+    <div class="sub-card ${planColors[p.id]||''}">
+      <div class="sub-name">${p.name}</div>
+      <div class="sub-price">₹${p.price}<span>/month</span></div>
+      <ul class="sub-features">
+        <li>${p.dailyLimit?p.dailyLimit+' searches/day':'Unlimited searches'}</li>
+        <li>All 7 search modules</li>
+        <li>${p.id==='elite'?'24/7 support':'Priority support'}</li>
+        ${p.id!=='basic'?'<li>Export results</li>':''}
+        ${p.id==='elite'?'<li>API access</li>':''}
+      </ul>
+      <button class="btn-buy" onclick="buyItem('subscription','${p.id}')">Subscribe</button>
+    </div>`).join('');
+}
+
+async function buyItem(type, itemId) {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Processing...';
+  try {
+    const r = await fetch(API+'/api/payment/create', {
+      method:'POST', headers: authHdr(),
+      body: JSON.stringify({ type, itemId })
+    });
+    const d = await r.json();
+    if (!r.ok) { alert(d.message); btn.disabled=false; btn.textContent='Buy Now'; return; }
+    sessionStorage.setItem('paymentRequestId', d.requestId);
+    window.location.href = d.paymentUrl;
+  } catch(e) {
+    alert('Payment failed. Try again.'); btn.disabled=false; btn.textContent='Buy Now';
+  }
+}
+
+async function loadBanners() {
+  try {
+    const r = await fetch(API+'/api/user/banners', { headers: authHdr() });
+    const banners = await r.json();
+    const dismissed = JSON.parse(localStorage.getItem('dismissedBanners')||'[]');
+    const area = document.getElementById('bannersArea');
+    area.innerHTML = banners.filter(b => !dismissed.includes(b._id)).map(b => `
+      <div class="banner ${b.type}" id="banner-${b._id}">
+        <div>
+          <div class="banner-title">${b.title}</div>
+          <div class="banner-msg">${b.message}</div>
+        </div>
+        ${b.dismissible?`<button class="banner-close" onclick="dismissBanner('${b._id}')">✕</button>`:''}
+      </div>`).join('');
+  } catch(e) {}
+}
+
+function dismissBanner(id) {
+  document.getElementById('banner-'+id)?.remove();
+  const dismissed = JSON.parse(localStorage.getItem('dismissedBanners')||'[]');
+  dismissed.push(id);
+  localStorage.setItem('dismissedBanners', JSON.stringify(dismissed));
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (btn) btn.classList.add('active');
+  const titles = { search:'New Search', history:'Search History', billing:'Credits & Plans', profile:'Profile & Refer' };
+  document.getElementById('pageTitle').textContent = titles[tab]||'';
+  if (tab === 'history') loadHistory(1);
+  if (document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
+}
+
+function copyRef() {
+  navigator.clipboard.writeText(user.referralCode||'').then(() => alert('Referral code copied!'));
+}
+function copyRefLink() {
+  const link = `${location.origin}/register.html?ref=${user.referralCode}`;
+  navigator.clipboard.writeText(link).then(() => alert('Referral link copied!'));
+}
+
+function logout() {
+  localStorage.removeItem('intelToken');
+  localStorage.removeItem('intelUser');
+  window.location.href = 'login.html';
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+init();
+</script>
+</body>
+</html>

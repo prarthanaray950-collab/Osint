@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>IntelGrid — OSINT Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0A0E1A;--bg2:#0F1629;--bg3:#141C35;--border:#1E2D50;--accent:#3B82F6;--accent2:#06B6D4;--green:#10B981;--red:#EF4444;--text:#E2E8F0;--muted:#64748B;--card:#111827}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,14,26,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;padding:0 32px;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:500;color:white}
+.nav-brand{font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:1px}
+.nav-links{display:flex;align-items:center;gap:24px}
+.nav-links a{font-size:0.82rem;color:var(--muted);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--text)}
+.btn-nav{height:36px;padding:0 18px;background:var(--accent);color:white;border:none;border-radius:7px;font-size:0.82rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;transition:background 0.2s}
+.btn-nav:hover{background:#2563EB}
+.btn-nav-outline{background:transparent;border:1px solid var(--border);color:var(--text);margin-right:8px}
+.btn-nav-outline:hover{border-color:var(--accent);background:rgba(59,130,246,0.1)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:100px 32px 80px;text-align:center;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(30,45,80,0.3) 1px,transparent 1px),linear-gradient(90deg,rgba(30,45,80,0.3) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.12),transparent 70%);top:50%;left:50%;transform:translate(-50%,-60%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:20px;padding:6px 16px;font-size:0.72rem;font-weight:500;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:28px;animation:fadeUp 0.6s ease}
+.hero-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:700;line-height:1.1;margin-bottom:20px;animation:fadeUp 0.6s 0.1s ease both}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--muted);font-weight:300;max-width:580px;margin:0 auto 40px;line-height:1.75;animation:fadeUp 0.6s 0.2s ease both}
+.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.6s 0.3s ease both}
+.btn-primary{height:48px;padding:0 28px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;border-radius:9px;font-size:0.9rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;letter-spacing:0.02em}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(59,130,246,0.35)}
+.btn-secondary{height:48px;padding:0 28px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:9px;font-size:0.9rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s}
+.btn-secondary:hover{border-color:var(--accent);background:rgba(59,130,246,0.08)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* TERMINAL PREVIEW */
+.terminal{background:#0D1117;border:1px solid var(--border);border-radius:12px;padding:0;max-width:680px;margin:60px auto 0;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.5);animation:fadeUp 0.7s 0.4s ease both}
+.terminal-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#161B22;border-bottom:1px solid var(--border)}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot.red{background:#FF5F57}.dot.yellow{background:#FFBD2E}.dot.green{background:#27C93F}
+.terminal-title{font-size:0.72rem;color:var(--muted);margin-left:8px;font-family:'JetBrains Mono',monospace}
+.terminal-body{padding:20px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;line-height:1.8}
+.t-muted{color:#4B5563}.t-green{color:#10B981}.t-blue{color:#60A5FA}.t-yellow{color:#F59E0B}.t-cyan{color:#06B6D4}.t-red{color:#EF4444}
+
+/* STATS */
+.stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;padding:60px 32px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:0 0 80px}
+.stat{text-align:center}
+.stat-num{font-size:2.2rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:0.78rem;color:var(--muted);margin-top:4px;letter-spacing:0.05em}
+
+/* SECTION */
+section{padding:80px 32px;max-width:1100px;margin:0 auto}
+.section-label{font-size:0.72rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.section-title{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;margin-bottom:16px}
+.section-sub{font-size:0.95rem;color:var(--muted);font-weight:300;line-height:1.75;max-width:560px}
+
+/* SEARCH TYPES */
+.search-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:48px}
+.search-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;transition:all 0.25s;cursor:default;position:relative;overflow:hidden}
+.search-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(59,130,246,0.05),transparent);opacity:0;transition:opacity 0.25s}
+.search-card:hover{border-color:rgba(59,130,246,0.4);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
+.search-card:hover::before{opacity:1}
+.search-icon{font-size:1.8rem;margin-bottom:14px}
+.search-name{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:6px}
+.search-desc{font-size:0.78rem;color:var(--muted);font-weight:300;line-height:1.6}
+.search-credits{position:absolute;top:14px;right:14px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:var(--accent);font-size:0.65rem;font-weight:600;padding:3px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace}
+
+/* PLANS */
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:48px}
+.plan-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:32px;position:relative;transition:all 0.25s}
+.plan-card.featured{border-color:var(--accent);background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(6,182,212,0.04))}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:4px 14px;border-radius:12px;white-space:nowrap}
+.plan-name{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:8px}
+.plan-price{font-size:2.4rem;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px}
+.plan-price span{font-size:0.9rem;font-weight:400;color:var(--muted)}
+.plan-features{list-style:none;margin:20px 0 24px;display:flex;flex-direction:column;gap:10px}
+.plan-features li{font-size:0.845rem;color:var(--muted);display:flex;align-items:center;gap:9px}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.btn-plan{width:100%;height:42px;background:rgba(59,130,246,0.15);color:var(--accent);border:1px solid rgba(59,130,246,0.3);border-radius:8px;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.btn-plan:hover{background:var(--accent);color:white;border-color:var(--accent)}
+.plan-card.featured .btn-plan{background:var(--accent);color:white;border-color:var(--accent)}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:40px 32px;text-align:center}
+footer p{font-size:0.78rem;color:var(--muted);font-weight:300}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-mark">IG</div>
+    <span class="nav-brand">INTELGRID</span>
+  </a>
+  <div class="nav-links">
+    <a href="#searches">Searches</a>
+    <a href="#pricing">Pricing</a>
+    <a href="login.html" class="btn-nav btn-nav-outline">Login</a>
+    <a href="register.html" class="btn-nav">Get Started</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div>
+    <div class="hero-badge">System Online · Authorized Use Only</div>
+    <h1>Professional <span>OSINT</span><br/>Intelligence Platform</h1>
+    <p>Advanced open-source intelligence gathering for cybersecurity professionals. Phone, vehicle, IP, GST, Telegram, Instagram, and IMEI analysis — all in one platform.</p>
+    <div class="hero-actions">
+      <a href="register.html" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Start Free — 5 Credits
+      </a>
+      <a href="#searches" class="btn-secondary">View Capabilities →</a>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+        <span class="terminal-title">intelgrid — search engine v3.0</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-green">✓</span> <span class="t-muted">Connected to IntelGrid Analysis Network</span></div>
+        <div><span class="t-blue">⟳</span> <span class="t-muted">Loading search modules...</span> <span class="t-green">OK</span></div>
+        <div>&nbsp;</div>
+        <div><span class="t-cyan">user@intelgrid</span><span class="t-muted">:</span><span class="t-blue">~</span><span class="t-muted">$</span> search --type phone --query <span class="t-yellow">+91XXXXXXXXXX</span></div>
+        <div><span class="t-green">✓</span> Query dispatched · Credits used: <span class="t-yellow">2</span></div>
+        <div>&nbsp;</div>
+        <div><span class="t-muted">┌─ PHONE ANALYSIS RESULT ─────────────────────────</span></div>
+        <div><span class="t-muted">│</span> Name        <span class="t-green">Redacted for demo</span></div>
+        <div><span class="t-muted">│</span> Carrier     <span class="t-green">Jio / Reliance</span></div>
+        <div><span class="t-muted">│</span> State       <span class="t-green">Maharashtra</span></div>
+        <div><span class="t-muted">│</span> Circle      <span class="t-green">Mumbai</span></div>
+        <div><span class="t-muted">└──────────────────────────────────────────────────</span></div>
+        <div>&nbsp;</div>
+        <div><span class="t-cyan">user@intelgrid</span><span class="t-muted">:</span><span class="t-blue">~</span><span class="t-muted">$</span> <span class="t-muted cursor">▊</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">7</div><div class="stat-label">Search Modules</div></div>
+  <div class="stat"><div class="stat-num">99.2%</div><div class="stat-label">Uptime</div></div>
+  <div class="stat"><div class="stat-num">&lt;3s</div><div class="stat-label">Avg Response</div></div>
+  <div class="stat"><div class="stat-num">256-bit</div><div class="stat-label">Encrypted</div></div>
+</div>
+
+<section id="searches">
+  <div class="section-label">Intelligence Modules</div>
+  <div class="section-title">7 Powerful Search Types</div>
+  <div class="section-sub">Each module is purpose-built for deep intelligence gathering. Results are delivered in structured, analyst-ready format.</div>
+  <div class="search-grid">
+    <div class="search-card"><div class="search-credits">2 CR</div><div class="search-icon">📱</div><div class="search-name">Phone Analysis</div><div class="search-desc">Carrier, location, TRAI data, and telecom intelligence from any Indian mobile number.</div></div>
+    <div class="search-card"><div class="search-credits">2 CR</div><div class="search-icon">🚗</div><div class="search-name">Vehicle Analysis</div><div class="search-desc">Owner details, RTO registration, insurance, challan records from any vehicle number.</div></div>
+    <div class="search-card"><div class="search-credits">3 CR</div><div class="search-icon">✈️</div><div class="search-name">Telegram Analysis</div><div class="search-desc">Profile data, group memberships, and metadata from Telegram usernames or phone numbers.</div></div>
+    <div class="search-card"><div class="search-credits">1 CR</div><div class="search-icon">🌐</div><div class="search-name">IP Analysis</div><div class="search-desc">Geolocation, ISP, ASN, VPN detection, and threat intelligence for any IP address.</div></div>
+    <div class="search-card"><div class="search-credits">2 CR</div><div class="search-icon">🏢</div><div class="search-name">GST Analysis</div><div class="search-desc">Business registration, filing history, address, and ownership from GST numbers.</div></div>
+    <div class="search-card"><div class="search-credits">3 CR</div><div class="search-icon">📸</div><div class="search-name">Instagram Analysis</div><div class="search-desc">Public profile data, follower analytics, linked accounts and activity patterns.</div></div>
+    <div class="search-card"><div class="search-credits">2 CR</div><div class="search-icon">📟</div><div class="search-name">IMEI / Device</div><div class="search-desc">Device make, model, manufacturing details, and blacklist status from IMEI numbers.</div></div>
+  </div>
+</section>
+
+<section id="pricing" style="border-top:1px solid var(--border);max-width:1100px">
+  <div class="section-label">Pricing</div>
+  <div class="section-title">Choose Your Plan</div>
+  <div class="section-sub">Start free with 5 credits. Upgrade anytime. No hidden fees.</div>
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">₹0<span>/forever</span></div>
+      <ul class="plan-features">
+        <li>5 signup credits</li>
+        <li>All search types</li>
+        <li>Search history</li>
+        <li>Buy more credits anytime</li>
+      </ul>
+      <a href="register.html" class="btn-plan">Get Started Free</a>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">₹599<span>/month</span></div>
+      <ul class="plan-features">
+        <li>50 searches per day</li>
+        <li>All 7 search modules</li>
+        <li>Export results</li>
+        <li>Priority support</li>
+        <li>No per-search charges</li>
+      </ul>
+      <a href="register.html" class="btn-plan">Subscribe to Pro</a>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Elite</div>
+      <div class="plan-price">₹999<span>/month</span></div>
+      <ul class="plan-features">
+        <li>Unlimited searches</li>
+        <li>All 7 search modules</li>
+        <li>API access</li>
+        <li>24/7 support</li>
+        <li>Bulk export</li>
+        <li>Custom integrations</li>
+      </ul>
+      <a href="register.html" class="btn-plan">Subscribe to Elite</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p style="margin-bottom:12px">
+    <a href="terms.html" style="margin:0 12px">Terms</a>
+    <a href="privacy.html" style="margin:0 12px">Privacy</a>
+    <a href="login.html" style="margin:0 12px">Login</a>
+    <a href="register.html" style="margin:0 12px">Register</a>
+  </p>
+  <p>© 2025 IntelGrid. For authorized use only. Unauthorized use is prohibited.</p>
+</footer>
+
+<script>
+if (localStorage.getItem('intelToken')) window.location.href = 'dashboard.html';
+</script>
+</body>
+</html>

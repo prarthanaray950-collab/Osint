@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Payment — IntelGrid</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0A0E1A;--bg2:#0F1629;--border:#1E2D50;--accent:#3B82F6;--accent2:#06B6D4;--green:#10B981;--red:#EF4444;--text:#E2E8F0;--muted:#64748B}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:48px 40px;max-width:420px;width:100%;text-align:center;animation:fadeUp 0.5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.icon{font-size:3.5rem;margin-bottom:20px;display:block}
+h1{font-size:1.5rem;font-weight:700;margin-bottom:10px}
+.sub{font-size:0.9rem;color:var(--muted);line-height:1.7;margin-bottom:28px}
+.btn{display:inline-block;height:46px;padding:0 28px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;border-radius:9px;font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;text-decoration:none;line-height:46px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:0.9rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="card">
+  <!-- Loading state -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loader-text">Verifying payment…</div>
+  </div>
+
+  <!-- Success state -->
+  <div id="success" style="display:none">
+    <span class="icon">✅</span>
+    <h1>Payment Successful</h1>
+    <div class="sub">Your account has been updated. Credits or plan activated immediately.</div>
+    <a href="dashboard.html" class="btn">Go to Dashboard →</a>
+  </div>
+
+  <!-- Failed state -->
+  <div id="failed" style="display:none">
+    <span class="icon">❌</span>
+    <h1>Payment Not Verified</h1>
+    <div class="sub" id="failMsg">Your payment could not be verified. If money was deducted, please contact support with your payment ID.</div>
+    <a href="dashboard.html" class="btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:var(--accent)">Back to Dashboard</a>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const paymentId        = params.get('payment_id');
+const paymentRequestId = params.get('payment_request_id') || sessionStorage.getItem('paymentRequestId');
+const TOKEN = localStorage.getItem('intelToken');
+
+async function verify() {
+  if (!paymentId || !paymentRequestId || !TOKEN) {
+    show('failed');
+    document.getElementById('failMsg').textContent = 'Missing payment information. Please contact support.';
+    return;
+  }
+
+  try {
+    const r = await fetch('/api/payment/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ payment_id: paymentId, payment_request_id: paymentRequestId })
+    });
+    const d = await r.json();
+    if (r.ok) {
+      sessionStorage.removeItem('paymentRequestId');
+      show('success');
+    } else {
+      document.getElementById('failMsg').textContent = d.message || 'Payment verification failed.';
+      show('failed');
+    }
+  } catch(e) {
+    document.getElementById('failMsg').textContent = 'Network error during verification. Contact support.';
+    show('failed');
+  }
+}
+
+function show(state) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById(state).style.display = 'block';
+}
+
+verify();
+</script>
+</body>
+</html>
