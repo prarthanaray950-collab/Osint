@@ -39,12 +39,25 @@ router.post('/register', async (req, res) => {
     await OTP.deleteMany({ email: email.toLowerCase() });
     await OTP.create({ email: email.toLowerCase(), otp, type: 'register', expiresAt });
 
-    await sendOTPEmail(email, otp, name);
+    try {
+      await sendOTPEmail(email, otp, name);
+    } catch (emailErr) {
+      console.error('[Register] Email send failed:', emailErr.message);
+      // Clean up the OTP and unverified user so they can retry cleanly
+      await OTP.deleteMany({ email: email.toLowerCase() });
+      await User.deleteOne({ email: email.toLowerCase(), isVerified: false });
+      return res.status(500).json({
+        message: 'Could not send verification email. ' +
+          (emailErr.message.includes('configured')
+            ? 'Email service is not set up on this server.'
+            : 'Please check your email address and try again.'),
+      });
+    }
 
     res.status(201).json({ message: 'OTP sent to your email. Please verify to continue.' });
   } catch (err) {
     console.error('[Register]', err.message);
-    res.status(500).json({ message: 'Registration failed. ' + err.message });
+    res.status(500).json({ message: 'Registration failed. Please try again.' });
   }
 });
 
@@ -115,11 +128,18 @@ router.post('/resend-otp', async (req, res) => {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
     await OTP.deleteMany({ email: email.toLowerCase() });
     await OTP.create({ email: email.toLowerCase(), otp, type: 'register', expiresAt });
-    await sendOTPEmail(email, otp, user.name);
+
+    try {
+      await sendOTPEmail(email, otp, user.name);
+    } catch (emailErr) {
+      console.error('[ResendOTP] Email send failed:', emailErr.message);
+      return res.status(500).json({ message: 'Could not send email. Please try again shortly.' });
+    }
 
     res.json({ message: 'New OTP sent to your email.' });
   } catch (err) {
-    res.status(500).json({ message: 'Could not resend OTP.' });
+    console.error('[ResendOTP]', err.message);
+    res.status(500).json({ message: 'Could not resend OTP. Please try again.' });
   }
 });
 
@@ -196,6 +216,22 @@ router.post('/reset-password', async (req, res) => {
     res.json({ message: 'Password reset successfully. Please login.' });
   } catch (err) {
     res.status(500).json({ message: 'Password reset failed.' });
+  }
+});
+
+// GET /api/auth/test-email?to=you@gmail.com
+// Hit this in a browser to diagnose if email works on your server
+router.get("/test-email", async (req, res) => {
+  const to = req.query.to;
+  if (!to) return res.status(400).json({ message: "Add ?to=your@email.com to the URL" });
+  try {
+    const otp = generateOTP();
+    console.log("[TestEmail] Sending test OTP", otp, "to", to);
+    await sendOTPEmail(to, otp, "Test User");
+    res.json({ success: true, message: "Test email sent to " + to + ". Check inbox & spam.", otp });
+  } catch (err) {
+    console.error("[TestEmail] Failed:", err.message);
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
