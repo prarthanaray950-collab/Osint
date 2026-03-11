@@ -594,37 +594,45 @@ function renderJSONRecords(records, type){
 
 function renderResult(data,type,query){
   if(!data)return '<div class="rraw">No data returned.</div>';
-  const raw=data.raw_content||data.raw_text||(typeof data==='string'?data:'');
+
+  // The relay returns: { status, data: { raw_text, parsed_data, ... } }
+  // IntelGrid search.js passes relay response.data straight through as d.data
+  // So unwrap the envelope if present
+  let inner=data;
+  if(data&&data.status==='success'&&data.data){inner=data.data;}
+
+  const raw=inner.raw_text||inner.raw_content||data.raw_text||data.raw_content||(typeof data==='string'?data:'');
   const clean=stripFoot(raw);
 
-  // ── Priority 1: JSON embedded in raw text ──────────────────────────────
+  // ── Priority 1: JSON array/object embedded in raw_text ───────────────
   const jsonRecs=extractJSON(raw);
-  if(jsonRecs&&jsonRecs.length){
-    // Also check for KEY:VALUE lines above JSON for extra context
-    const kvAbove=parseKV(clean.split('[')[0]||'');
-    let html='';
-    if(Object.keys(kvAbove).length>1){
-      html+=`<div class="rs">${secHdr('Query Info')}<div class="rgrid">`;
-      Object.entries(kvAbove).forEach(([k,v])=>html+=fcard(k,v));
-      html+='</div></div>';
-    }
-    html+=renderJSONRecords(jsonRecs,type);
-    return html||`<div class="rraw">${xe(clean)}</div>`;
-  }
+  if(jsonRecs&&jsonRecs.length) return renderJSONRecords(jsonRecs,type);
 
-  // ── Priority 2: parsed_data object on the data payload ────────────────
-  if(data.parsed_data&&Object.keys(data.parsed_data).length){
-    return renderJSONRecords([data.parsed_data],type);
-  }
+  // ── Priority 2: relay parsed_data (its own KV splitter) ──────────────
+  const pd=inner.parsed_data||data.parsed_data||{};
+  const pdFiltered={};
+  Object.entries(pd).forEach(([k,v])=>{
+    // skip meta keys relay adds
+    if(['query','type','name','source','timestamp','raw_text','parsed_data'].includes(k))return;
+    if(v&&String(v).trim()&&String(v).trim()!=='null')pdFiltered[k]=v;
+  });
+  if(Object.keys(pdFiltered).length>1) return renderJSONRecords([pdFiltered],type);
 
-  // ── Priority 3: type-specific text parsers ────────────────────────────
+  // ── Priority 3: type-specific text parsers on raw text ───────────────
+  if(!clean) return '<div class="rraw">No result content received.</div>';
   if(type==='vehicle')return renderVehicle(clean);
   if(type==='family')return renderFamily(clean);
   if(type==='phone'||type==='aadhar')return renderPhone(clean);
   if(type==='telegram'||type==='instagram')return renderSocial(clean,type);
   if(type==='ip')return renderIP(clean);
   if(type==='gst')return renderGST(clean);
-  return renderGeneric(clean);
+
+  // ── Priority 4: generic KV parse of raw text ─────────────────────────
+  const gkv=parseKV(clean);
+  if(Object.keys(gkv).length>1) return renderJSONRecords([gkv],type);
+
+  // ── Fallback: render raw text ─────────────────────────────────────────
+  return `<div class="rraw">${xe(clean||JSON.stringify(inner,null,2))}</div>`;
 }
 
 function renderFamily(clean){
