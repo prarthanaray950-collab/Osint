@@ -10,7 +10,6 @@ const paymentRoutes = require('./routes/payment');
 const adminRoutes   = require('./routes/admin');
 const userRoutes    = require('./routes/user');
 
-const { warmup } = require('./utils/relay');
 const app = express();
 
 app.use(cors({ origin: '*', credentials: true }));
@@ -42,7 +41,6 @@ app.get('*', (req, res) => {
 mongoose.connect(process.env.MONGO_URI)
   .then(async () => {
     console.log('MongoDB connected');
-    warmup(); // FIX #1+#5: pre-authenticate relay session at startup
 
     // Seed default data
     const { PlanConfig, CreditPack } = require('./models/index');
