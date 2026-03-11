@@ -71,11 +71,28 @@ const creditPackSchema = new mongoose.Schema({
   popular:  { type: Boolean, default: false },
 });
 
+
+// Site-wide config (key-value store, single document)
+const siteConfigSchema = new mongoose.Schema({
+  key:   { type: String, required: true, unique: true },
+  value: { type: mongoose.Schema.Types.Mixed, required: true },
+}, { timestamps: true });
+
+// Search command toggles
+const commandConfigSchema = new mongoose.Schema({
+  key:       { type: String, required: true, unique: true }, // e.g. "phone"
+  name:      { type: String, required: true },
+  enabled:   { type: Boolean, default: true },
+  credits:   { type: Number, default: 2 },
+}, { timestamps: true });
+
 module.exports = {
   OTP:        mongoose.model('OTP', otpSchema),
   SearchLog:  mongoose.model('SearchLog', searchLogSchema),
   Payment:    mongoose.model('Payment', paymentSchema),
   Banner:     mongoose.model('Banner', bannerSchema),
   PlanConfig: mongoose.model('PlanConfig', planConfigSchema),
-  CreditPack: mongoose.model('CreditPack', creditPackSchema),
+  CreditPack:    mongoose.model('CreditPack', creditPackSchema),
+  SiteConfig:    mongoose.model('SiteConfig', siteConfigSchema),
+  CommandConfig: mongoose.model('CommandConfig', commandConfigSchema),
 };
