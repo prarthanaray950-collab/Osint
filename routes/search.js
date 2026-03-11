@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
 
   let success = false, result = null, error = null;
   try {
-    result  = await relaySearch(type, query.trim(), process.env.RELAY_API_KEY);
+    result  = await relaySearch(type, query.trim());
     success = true;
   } catch (err) {
     error = err.response?.data?.message || err.message || 'Search failed';
