@@ -1,11 +1,11 @@
 const express = require('express');
 const { protect, adminOnly } = require('../middleware/auth');
-const { SearchLog, Payment, Banner } = require('../models/index');
+const { SearchLog, Payment, Banner, PlanConfig, CreditPack } = require('../models/index');
 const User = require('../models/User');
 const router = express.Router();
 router.use(protect, adminOnly);
 
-// ── DASHBOARD STATS ────────────────────────────────────────────────
+// ── DASHBOARD STATS ──────────────────────────────────────────────────────────
 router.get('/stats', async (req, res) => {
   const [users, searches, revenue, banned, recentUsers, recentSearches] = await Promise.all([
     User.countDocuments({ isVerified: true }),
@@ -18,7 +18,7 @@ router.get('/stats', async (req, res) => {
   res.json({ users, searches, revenue: revenue[0]?.total || 0, banned, recentUsers, recentSearches });
 });
 
-// ── USERS ────────────────────────────────────────────────────────
+// ── USERS ────────────────────────────────────────────────────────────────────
 router.get('/users', async (req, res) => {
   const { q, plan, status, page = 1 } = req.query;
   const limit = 20, skip = (page - 1) * limit;
@@ -42,16 +42,14 @@ router.get('/users/:id', async (req, res) => {
   res.json({ user, searches, payments });
 });
 
-// Add credits
 router.post('/users/:id/credits', async (req, res) => {
-  const { amount, note } = req.body;
+  const { amount } = req.body;
   if (!amount || isNaN(amount)) return res.status(400).json({ message: 'Valid amount required.' });
   const user = await User.findByIdAndUpdate(req.params.id, { $inc: { credits: parseInt(amount) } }, { new: true });
   if (!user) return res.status(404).json({ message: 'User not found.' });
   res.json({ message: `${amount > 0 ? 'Added' : 'Deducted'} ${Math.abs(amount)} credits.`, credits: user.credits });
 });
 
-// Ban / Unban
 router.post('/users/:id/ban', async (req, res) => {
   const { reason } = req.body;
   const user = await User.findByIdAndUpdate(req.params.id, { isBanned: true, banReason: reason || 'Admin action' }, { new: true });
@@ -65,7 +63,6 @@ router.post('/users/:id/unban', async (req, res) => {
   res.json({ message: 'User unbanned.', user });
 });
 
-// Activate / Deactivate
 router.post('/users/:id/activate', async (req, res) => {
   const user = await User.findByIdAndUpdate(req.params.id, { isActive: true }, { new: true });
   res.json({ message: 'User activated.', user });
@@ -76,7 +73,6 @@ router.post('/users/:id/deactivate', async (req, res) => {
   res.json({ message: 'User deactivated.', user });
 });
 
-// Change plan
 router.post('/users/:id/plan', async (req, res) => {
   const { plan, days } = req.body;
   const validPlans = ['free', 'basic', 'pro', 'elite'];
@@ -86,13 +82,12 @@ router.post('/users/:id/plan', async (req, res) => {
   res.json({ message: `Plan changed to ${plan}.`, user });
 });
 
-// Set admin role
 router.post('/users/:id/make-admin', async (req, res) => {
   const user = await User.findByIdAndUpdate(req.params.id, { role: 'admin' }, { new: true });
   res.json({ message: 'User promoted to admin.', user });
 });
 
-// ── SEARCHES ─────────────────────────────────────────────────────
+// ── SEARCHES ─────────────────────────────────────────────────────────────────
 router.get('/searches', async (req, res) => {
   const { q, type, userId, page = 1 } = req.query;
   const limit = 25, skip = (page - 1) * limit;
@@ -100,7 +95,6 @@ router.get('/searches', async (req, res) => {
   if (q)      filter.query      = { $regex: q, $options: 'i' };
   if (type)   filter.searchType = type;
   if (userId) filter.userId     = userId;
-
   const [logs, total] = await Promise.all([
     SearchLog.find(filter).sort('-createdAt').skip(skip).limit(limit),
     SearchLog.countDocuments(filter)
@@ -118,13 +112,13 @@ router.delete('/searches/:id', async (req, res) => {
   res.json({ message: 'Search log deleted.' });
 });
 
-// ── PAYMENTS ──────────────────────────────────────────────────────
+// ── PAYMENTS ──────────────────────────────────────────────────────────────────
 router.get('/payments', async (req, res) => {
   const payments = await Payment.find().sort('-createdAt').limit(100);
   res.json(payments);
 });
 
-// ── BANNERS ───────────────────────────────────────────────────────
+// ── BANNERS ───────────────────────────────────────────────────────────────────
 router.get('/banners', async (req, res) => {
   const banners = await Banner.find().sort('-createdAt');
   res.json(banners);
@@ -133,7 +127,12 @@ router.get('/banners', async (req, res) => {
 router.post('/banners', async (req, res) => {
   const { title, message, type, targetPlan, dismissible } = req.body;
   if (!title || !message) return res.status(400).json({ message: 'Title and message required.' });
-  const banner = await Banner.create({ title, message, type: type || 'info', targetPlan: targetPlan || 'all', dismissible: dismissible !== false, createdBy: req.user.email });
+  const banner = await Banner.create({
+    title, message, type: type || 'info',
+    targetPlan: targetPlan || 'all',
+    dismissible: dismissible !== false,
+    createdBy: req.user.email,
+  });
   res.status(201).json(banner);
 });
 
@@ -148,22 +147,135 @@ router.delete('/banners/:id', async (req, res) => {
   res.json({ message: 'Banner deleted.' });
 });
 
-// ── ACTIVE BANNERS (for users) ────────────────────────────────────
-module.exports = router;
+// ── SUBSCRIPTION PLANS ────────────────────────────────────────────────────────
 
-// ── RELAY STATUS ──────────────────────────────────────────────────
+async function seedPlansIfEmpty() {
+  const count = await PlanConfig.countDocuments();
+  if (count === 0) {
+    await PlanConfig.insertMany([
+      { key: 'basic', name: 'Basic',  price: 299, dailyLimit: 20, validityDays: 30, sortOrder: 1, features: ['20 searches/day', 'All 14 modules', 'Priority support'], isActive: true },
+      { key: 'pro',   name: 'Pro',    price: 599, dailyLimit: 50, validityDays: 30, sortOrder: 2, features: ['50 searches/day', 'All 14 modules', 'Export results', 'Priority support'], isActive: true },
+      { key: 'elite', name: 'Elite',  price: 999, dailyLimit: 0,  validityDays: 30, sortOrder: 3, features: ['Unlimited searches', 'All 14 modules', 'Export results', '24/7 support', 'API access'], isActive: true },
+    ]);
+  }
+}
+
+async function seedPacksIfEmpty() {
+  const count = await CreditPack.countDocuments();
+  if (count === 0) {
+    await CreditPack.insertMany([
+      { name: '50 Credits',  credits: 50,  bonus: 0,  price: 149, popular: false, isActive: true },
+      { name: '150 Credits', credits: 150, bonus: 10, price: 399, popular: false, isActive: true },
+      { name: '500 Credits', credits: 500, bonus: 50, price: 999, popular: true,  isActive: true },
+    ]);
+  }
+}
+
+// GET all plans
+router.get('/plans', async (req, res) => {
+  try {
+    await seedPlansIfEmpty();
+    const plans = await PlanConfig.find().sort('sortOrder');
+    res.json(plans);
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
+// CREATE plan
+router.post('/plans', async (req, res) => {
+  try {
+    const { key, name, price, dailyLimit, validityDays, features, isActive, sortOrder } = req.body;
+    if (!key || !name || price == null) return res.status(400).json({ message: 'key, name and price are required.' });
+    const exists = await PlanConfig.findOne({ key });
+    if (exists) return res.status(409).json({ message: `Plan key "${key}" already exists.` });
+    const plan = await PlanConfig.create({
+      key, name, price,
+      dailyLimit:   dailyLimit  || 0,
+      validityDays: validityDays || 30,
+      features:     features    || [],
+      isActive:     isActive !== false,
+      sortOrder:    sortOrder   || 0,
+    });
+    res.status(201).json(plan);
+  } catch (e) { res.status(400).json({ message: e.message }); }
+});
+
+// UPDATE plan
+router.put('/plans/:id', async (req, res) => {
+  try {
+    const plan = await PlanConfig.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!plan) return res.status(404).json({ message: 'Plan not found.' });
+    res.json(plan);
+  } catch (e) { res.status(400).json({ message: e.message }); }
+});
+
+// DELETE plan
+router.delete('/plans/:id', async (req, res) => {
+  try {
+    const plan = await PlanConfig.findByIdAndDelete(req.params.id);
+    if (!plan) return res.status(404).json({ message: 'Plan not found.' });
+    res.json({ message: `Plan "${plan.name}" deleted.` });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
+// ── CREDIT PACKS ──────────────────────────────────────────────────────────────
+
+// GET all packs
+router.get('/packs', async (req, res) => {
+  try {
+    await seedPacksIfEmpty();
+    const packs = await CreditPack.find().sort('price');
+    res.json(packs);
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
+// CREATE pack
+router.post('/packs', async (req, res) => {
+  try {
+    const { name, credits, price, bonus, popular, isActive } = req.body;
+    if (!name || !credits || !price) return res.status(400).json({ message: 'name, credits and price are required.' });
+    const pack = await CreditPack.create({
+      name, credits, price,
+      bonus:    bonus    || 0,
+      popular:  popular  || false,
+      isActive: isActive !== false,
+    });
+    res.status(201).json(pack);
+  } catch (e) { res.status(400).json({ message: e.message }); }
+});
+
+// UPDATE pack
+router.put('/packs/:id', async (req, res) => {
+  try {
+    const pack = await CreditPack.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!pack) return res.status(404).json({ message: 'Pack not found.' });
+    res.json(pack);
+  } catch (e) { res.status(400).json({ message: e.message }); }
+});
+
+// DELETE pack
+router.delete('/packs/:id', async (req, res) => {
+  try {
+    const pack = await CreditPack.findByIdAndDelete(req.params.id);
+    if (!pack) return res.status(404).json({ message: 'Pack not found.' });
+    res.json({ message: `Pack "${pack.name}" deleted.` });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
+// ── RELAY STATUS ──────────────────────────────────────────────────────────────
 router.get('/relay-status', async (req, res) => {
   const { relayStatus } = require('../utils/relay');
   const status = await relayStatus();
   res.json(status);
 });
 
-// ── SETTINGS (relay key update) ───────────────────────────────────
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
 router.post('/settings', async (req, res) => {
-  const { relayApiKey } = req.body;
-  if (relayApiKey) {
-    process.env.RELAY_API_KEY = relayApiKey;
-    return res.json({ message: 'Relay API key updated for this session. Add it to your .env to persist.' });
-  }
-  res.status(400).json({ message: 'Nothing to update.' });
+  const { intelgridSecret, relayApiUrl } = req.body;
+  if (!intelgridSecret && !relayApiUrl)
+    return res.status(400).json({ message: 'Provide intelgridSecret and/or relayApiUrl to update.' });
+  if (intelgridSecret) process.env.INTELGRID_SECRET = intelgridSecret;
+  if (relayApiUrl)     process.env.RELAY_API_URL     = relayApiUrl;
+  return res.json({ message: 'Settings updated for this session. Update your .env to persist across restarts.' });
 });
+
+module.exports = router;
