@@ -8,55 +8,35 @@
 :root{--bg:#080C17;--bg2:#0C1120;--border:#1A2540;--border2:#243050;--accent:#3B82F6;--accent2:#06B6D4;--green:#10B981;--red:#EF4444;--text:#E8EDF5;--muted:#566A8A;--muted2:#8A9BB5}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background-image:linear-gradient(rgba(26,37,64,0.3) 1px,transparent 1px),linear-gradient(90deg,rgba(26,37,64,0.3) 1px,transparent 1px);background-size:48px 48px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:40px 36px;max-width:400px;width:100%;animation:fadeUp 0.5s ease;box-shadow:0 24px 80px rgba(0,0,0,0.4)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:44px 36px;max-width:400px;width:100%;animation:fadeUp 0.5s ease;box-shadow:0 24px 80px rgba(0,0,0,0.4)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:32px;justify-content:center}
-.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:500;color:white}
-.logo-text{font-size:1rem;font-weight:700;letter-spacing:1.5px}
-h1{font-size:1.5rem;font-weight:800;margin-bottom:6px;text-align:center;letter-spacing:-0.01em}
-.sub{font-size:0.82rem;color:var(--muted2);text-align:center;margin-bottom:32px;line-height:1.6}
-
-/* Divider */
-.divider{display:flex;align-items:center;gap:12px;margin:24px 0}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.divider span{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:36px;justify-content:center}
+.logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:500;color:#fff;box-shadow:0 0 14px rgba(59,130,246,0.3)}
+.logo-text{font-size:1rem;font-weight:800;letter-spacing:2px}
+h1{font-size:1.6rem;font-weight:800;margin-bottom:8px;text-align:center;letter-spacing:-0.01em}
+.sub{font-size:0.82rem;color:var(--muted2);text-align:center;margin-bottom:36px;line-height:1.65}
 
 /* Google button */
-.btn-google{width:100%;height:48px;background:white;color:#1f1f1f;border:1px solid #dadce0;border-radius:10px;font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;text-decoration:none}
-.btn-google:hover{background:#f8f9fa;box-shadow:0 2px 12px rgba(0,0,0,0.15)}
-.btn-google svg{flex-shrink:0}
-.btn-google.loading{opacity:0.6;cursor:not-allowed;pointer-events:none}
+.btn-google{width:100%;height:52px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:12px;font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all 0.2s;position:relative;overflow:hidden}
+.btn-google:hover{background:#f8f9fa;box-shadow:0 4px 16px rgba(0,0,0,0.12);transform:translateY(-1px)}
+.btn-google:active{transform:translateY(0);box-shadow:none}
+.btn-google:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-google .g-icon{flex-shrink:0;width:20px;height:20px}
+.btn-google .btn-text{flex:1;text-align:center}
 
-/* Email/password fields */
-.field{margin-bottom:14px}
-.field label{display:block;font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.field input{width:100%;height:44px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:0 14px;font-family:'Syne',sans-serif;font-size:0.875rem;color:var(--text);outline:none;transition:border-color 0.2s}
-.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
-.field input::placeholder{color:var(--muted)}
-.pw-wrap{position:relative}
-.pw-wrap input{padding-right:44px}
-.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.9rem;padding:4px}
-.forgot{text-align:right;margin-top:-8px;margin-bottom:14px}
-.forgot a{font-size:0.75rem;color:var(--accent);text-decoration:none}
+/* spinner inside button */
+.btn-spinner{width:18px;height:18px;border:2px solid #dadce0;border-top-color:#4285F4;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.btn-primary{width:100%;height:46px;background:linear-gradient(135deg,var(--accent),#2563EB);color:white;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-size:0.875rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:4px}
-.btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
-.btn-primary:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none}
-
-.err{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:#FCA5A5;padding:10px 14px;font-size:0.82rem;margin-top:12px;display:none;border-left:3px solid var(--red)}
-.links{display:flex;justify-content:space-between;margin-top:20px;font-size:0.8rem;color:var(--muted)}
+.err{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:#FCA5A5;padding:11px 14px;font-size:0.82rem;margin-top:18px;display:none;border-left:3px solid var(--red);line-height:1.5}
+.divider{display:flex;align-items:center;gap:10px;margin:24px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;white-space:nowrap}
+.links{display:flex;justify-content:center;margin-top:22px;font-size:0.8rem;color:var(--muted);gap:6px}
 .links a{color:var(--accent);text-decoration:none;font-weight:600}
-
-/* Forgot modal */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:center;justify-content:center}
-.modal-bg.show{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:360px;width:calc(100% - 32px);animation:fadeUp 0.3s ease}
-.modal h2{font-size:1.1rem;font-weight:700;margin-bottom:8px}
-.modal p{font-size:0.82rem;color:var(--muted2);margin-bottom:18px;line-height:1.6}
-.modal-btns{display:flex;gap:10px;margin-top:4px}
-.btn-outline{flex:1;height:40px;background:transparent;border:1px solid var(--border);border-radius:8px;font-family:'Syne',sans-serif;font-size:0.82rem;color:var(--text);cursor:pointer}
-.btn-sm{flex:1;height:40px;background:var(--accent);color:white;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer}
-.suc{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:7px;color:#6EE7B7;padding:10px 14px;font-size:0.82rem;margin-top:10px;display:none}
+.features{display:flex;flex-direction:column;gap:9px;margin-bottom:32px}
+.feat{display:flex;align-items:center;gap:10px;font-size:0.8rem;color:var(--muted2)}
+.feat-icon{width:28px;height:28px;border-radius:7px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -65,90 +45,83 @@ h1{font-size:1.5rem;font-weight:800;margin-bottom:6px;text-align:center;letter-s
     <div class="logo-mark">IG</div>
     <span class="logo-text">INTELGRID</span>
   </a>
+
   <h1>Welcome Back</h1>
   <p class="sub">Sign in to your intelligence dashboard</p>
 
-  <!-- Google Sign In -->
+  <div class="features">
+    <div class="feat"><div class="feat-icon">🔍</div>14 search modules — phone, Aadhar, vehicle & more</div>
+    <div class="feat"><div class="feat-icon">🔒</div>Encrypted · authorized use only</div>
+    <div class="feat"><div class="feat-icon">⚡</div>Results in under 3 seconds</div>
+  </div>
+
   <button class="btn-google" id="googleBtn" onclick="googleSignIn()">
-    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
-    Continue with Google
+    <svg class="g-icon" viewBox="0 0 48 48">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+    </svg>
+    <span class="btn-text">Continue with Google</span>
   </button>
 
-  <div class="divider"><span>or sign in with email</span></div>
-
-  <div class="field">
-    <label>Email Address</label>
-    <input type="email" id="email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')login()"/>
-  </div>
-  <div class="field">
-    <label>Password</label>
-    <div class="pw-wrap">
-      <input type="password" id="password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"/>
-      <button class="eye-btn" onclick="togglePw(this)" type="button">👁</button>
-    </div>
-  </div>
-  <div class="forgot"><a href="#" onclick="showForgot()">Forgot password?</a></div>
-
-  <button class="btn-primary" id="loginBtn" onclick="login()">Sign In</button>
   <div class="err" id="err"></div>
 
+  <div class="divider"><span>new to intelgrid?</span></div>
   <div class="links">
-    <span>New to IntelGrid?</span>
-    <a href="register.html">Create account →</a>
+    <span>Don't have an account?</span>
+    <a href="register.html">Create one free →</a>
   </div>
 </div>
 
-<!-- Forgot Password Modal -->
-<div class="modal-bg" id="forgotModal">
-  <div class="modal">
-    <h2>Reset Password</h2>
-    <p>Enter your email and we'll send a reset link.</p>
-    <div class="field"><label>Email</label><input type="email" id="fpEmail" placeholder="your@email.com"/></div>
-    <div class="err" id="fpErr"></div>
-    <div class="suc" id="fpSuc"></div>
-    <div class="modal-btns">
-      <button class="btn-outline" onclick="hideForgot()">Cancel</button>
-      <button class="btn-sm" id="fpBtn" onclick="fpSend()">Send Reset</button>
-    </div>
-  </div>
-</div>
-
-<!-- Google GSI script -->
-<script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 const API = '';
 const GOOGLE_CLIENT_ID = '820086258635-ir6s0i0ms2pm55g0h0jm2pkf2cr21r9r.apps.googleusercontent.com';
 
-// Initialize Google Sign In
-window.addEventListener('load', () => {
-  if (typeof google !== 'undefined') initGoogle();
-  else document.querySelector('script[src*="gsi"]').addEventListener('load', initGoogle);
-});
+if (localStorage.getItem('intelToken')) window.location.href = 'dashboard.html';
 
 function initGoogle() {
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
     callback: handleGoogleCredential,
     auto_select: false,
+    cancel_on_tap_outside: true,
   });
 }
 
+// Try init immediately or on script load
+if (typeof google !== 'undefined') initGoogle();
+else document.querySelector('script[src*="gsi"]').addEventListener('load', initGoogle);
+
+function setLoading(on) {
+  const btn = document.getElementById('googleBtn');
+  btn.disabled = on;
+  btn.innerHTML = on
+    ? `<div class="btn-spinner"></div><span class="btn-text">Signing in…</span>`
+    : `<svg class="g-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span class="btn-text">Continue with Google</span>`;
+}
+
 function googleSignIn() {
-  if (typeof google === 'undefined') { showErr('Google Sign-In failed to load. Check your connection.'); return; }
-  google.accounts.id.prompt((notification) => {
+  if (typeof google === 'undefined') {
+    showErr('Google Sign-In script failed to load. Check your internet connection.');
+    return;
+  }
+  hideErr();
+  google.accounts.id.prompt(notification => {
+    // If One Tap is blocked (browser policy etc), fall back to redirect flow
     if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-      // Fallback: open popup
-      google.accounts.oauth2 && google.accounts.id.renderButton(
-        document.getElementById('googleBtn'), { theme: 'outline', size: 'large' }
-      );
+      google.accounts.id.renderButton(document.getElementById('googleBtn'), {
+        theme: 'outline', size: 'large', width: 328,
+      });
+      document.getElementById('googleBtn').querySelector('div[role="button"]')?.click();
     }
   });
 }
 
 async function handleGoogleCredential(response) {
-  const btn = document.getElementById('googleBtn');
-  btn.classList.add('loading');
-  btn.querySelector('span') && (btn.querySelector('span').textContent = 'Signing in...');
+  setLoading(true);
+  hideErr();
   try {
     const r = await fetch(API + '/api/auth/google', {
       method: 'POST',
@@ -156,63 +129,18 @@ async function handleGoogleCredential(response) {
       body: JSON.stringify({ credential: response.credential }),
     });
     const d = await r.json();
-    if (!r.ok) { showErr(d.message); btn.classList.remove('loading'); return; }
+    if (!r.ok) { showErr(d.message || 'Sign-in failed. Try again.'); setLoading(false); return; }
     localStorage.setItem('intelToken', d.token);
     localStorage.setItem('intelUser', JSON.stringify(d.user));
     window.location.href = d.user.role === 'admin' ? 'admin.html' : 'dashboard.html';
   } catch(e) {
     showErr('Network error. Please try again.');
-    btn.classList.remove('loading');
+    setLoading(false);
   }
 }
 
-async function login() {
-  const email    = document.getElementById('email').value.trim().toLowerCase();
-  const password = document.getElementById('password').value;
-  if (!email || !password) { showErr('Enter email and password.'); return; }
-  const btn = document.getElementById('loginBtn');
-  btn.disabled = true; btn.textContent = 'Signing in...';
-  hideErr();
-  try {
-    const r = await fetch(API + '/api/auth/login', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ email, password })
-    });
-    const d = await r.json();
-    if (!r.ok) { showErr(d.message); btn.disabled = false; btn.textContent = 'Sign In'; return; }
-    localStorage.setItem('intelToken', d.token);
-    localStorage.setItem('intelUser', JSON.stringify(d.user));
-    btn.textContent = 'Redirecting...';
-    window.location.href = d.user.role === 'admin' ? 'admin.html' : 'dashboard.html';
-  } catch(e) {
-    showErr('Network error. Check your connection.');
-    btn.disabled = false; btn.textContent = 'Sign In';
-  }
-}
-
-function togglePw(btn) {
-  const input = btn.previousElementSibling;
-  input.type = input.type === 'password' ? 'text' : 'password';
-  btn.textContent = input.type === 'password' ? '👁' : '🙈';
-}
 function showErr(msg) { const e = document.getElementById('err'); e.textContent = msg; e.style.display = 'block'; }
 function hideErr()    { document.getElementById('err').style.display = 'none'; }
-function showForgot() { document.getElementById('forgotModal').classList.add('show'); }
-function hideForgot() { document.getElementById('forgotModal').classList.remove('show'); }
-
-async function fpSend() {
-  const email = document.getElementById('fpEmail').value.trim().toLowerCase();
-  if (!email) { document.getElementById('fpErr').textContent='Enter your email'; document.getElementById('fpErr').style.display='block'; return; }
-  const btn = document.getElementById('fpBtn');
-  btn.disabled = true; btn.textContent = 'Sending...';
-  const r = await fetch(API+'/api/auth/forgot-password', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
-  const d = await r.json();
-  if (!r.ok) { document.getElementById('fpErr').textContent=d.message; document.getElementById('fpErr').style.display='block'; btn.disabled=false; btn.textContent='Send Reset'; return; }
-  document.getElementById('fpSuc').textContent='Reset OTP sent to your email.'; document.getElementById('fpSuc').style.display='block';
-  btn.disabled=true; btn.textContent='Sent';
-}
-
-if (localStorage.getItem('intelToken')) window.location.href = 'dashboard.html';
 </script>
 </body>
 </html>
