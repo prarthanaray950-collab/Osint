@@ -279,61 +279,56 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
     <!-- PLANS & CREDITS -->
     <div class="tab-panel" id="tab-plans">
-      <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-        <div>
-          <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Subscription Plans</h2>
-          <p style="font-size:0.8rem;color:var(--muted)">Assign plans to users or update plan durations manually.</p>
+
+      <!-- ── SUBSCRIPTION PLANS ── -->
+      <div class="settings-section" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+          <h3 style="margin:0;padding:0;border:none;font-size:.95rem">🚀 Subscription Plans</h3>
+          <button class="btn-sm btn-green" style="height:34px;padding:0 16px;font-size:.8rem" onclick="openPlanModal()">+ New Plan</button>
         </div>
+        <div class="card-grid" id="planCards"><div style="color:var(--muted);font-size:.85rem">Loading…</div></div>
       </div>
 
-      <!-- Plan cards -->
-      <div class="card-grid" id="planCards">
-        <!-- populated by JS -->
+      <!-- ── CREDIT PACKS ── -->
+      <div class="settings-section" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+          <h3 style="margin:0;padding:0;border:none;font-size:.95rem">💳 Credit Packs</h3>
+          <button class="btn-sm btn-green" style="height:34px;padding:0 16px;font-size:.8rem" onclick="openPackModal()">+ New Pack</button>
+        </div>
+        <div class="card-grid" id="packCards"><div style="color:var(--muted);font-size:.85rem">Loading…</div></div>
       </div>
 
-      <!-- Assign plan to user -->
-      <div class="settings-section">
+      <!-- ── ASSIGN PLAN TO USER ── -->
+      <div class="settings-section" style="margin-bottom:20px">
         <h3>🎯 Assign Plan to User</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;flex-wrap:wrap">
-          <div class="form-field" style="margin:0">
-            <label>User Email</label>
-            <input type="email" id="assignEmail" placeholder="user@email.com" class="setting-input" style="width:100%"/>
-          </div>
-          <div class="form-field" style="margin:0">
-            <label>Plan</label>
+          <div class="form-field" style="margin:0"><label>User Email</label>
+            <input type="email" id="assignEmail" placeholder="user@email.com" class="setting-input" style="width:100%"/></div>
+          <div class="form-field" style="margin:0"><label>Plan</label>
             <select id="assignPlan" class="setting-input" style="width:100%">
               <option value="free">Free</option>
               <option value="basic">Basic</option>
               <option value="pro">Pro</option>
               <option value="elite">Elite</option>
-            </select>
-          </div>
-          <div class="form-field" style="margin:0">
-            <label>Duration (days)</label>
-            <input type="number" id="assignDays" value="30" min="1" class="setting-input" style="width:100%"/>
-          </div>
-          <button class="btn-primary" style="height:38px;padding:0 18px;white-space:nowrap" onclick="assignPlanToUser()">Assign Plan</button>
+            </select></div>
+          <div class="form-field" style="margin:0"><label>Duration (days)</label>
+            <input type="number" id="assignDays" value="30" min="1" class="setting-input" style="width:100%"/></div>
+          <button class="btn-primary" style="height:38px;padding:0 18px;white-space:nowrap" onclick="assignPlanToUser()">Assign</button>
         </div>
-        <div class="err" id="assignErr"></div>
-        <div class="suc" id="assignSuc"></div>
+        <div class="err" id="assignErr"></div><div class="suc" id="assignSuc"></div>
       </div>
 
-      <!-- Add credits to user -->
+      <!-- ── ADD/DEDUCT CREDITS ── -->
       <div class="settings-section">
-        <h3>💳 Add / Deduct Credits</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end">
-          <div class="form-field" style="margin:0">
-            <label>User Email</label>
-            <input type="email" id="creditEmail" placeholder="user@email.com" class="setting-input" style="width:100%"/>
-          </div>
-          <div class="form-field" style="margin:0">
-            <label>Amount (use − to deduct)</label>
-            <input type="number" id="creditAmt" placeholder="e.g. 50 or -10" class="setting-input" style="width:100%"/>
-          </div>
-          <button class="btn-primary" style="height:38px;padding:0 18px;white-space:nowrap" onclick="addCreditsByEmail()">Update Credits</button>
+        <h3>⚡ Add / Deduct Credits by Email</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;flex-wrap:wrap">
+          <div class="form-field" style="margin:0"><label>User Email</label>
+            <input type="email" id="creditEmail" placeholder="user@email.com" class="setting-input" style="width:100%"/></div>
+          <div class="form-field" style="margin:0"><label>Amount (use − to deduct)</label>
+            <input type="number" id="creditAmt" placeholder="e.g. 50 or -10" class="setting-input" style="width:100%"/></div>
+          <button class="btn-primary" style="height:38px;padding:0 18px;white-space:nowrap" onclick="addCreditsByEmail()">Update</button>
         </div>
-        <div class="err" id="creditErr"></div>
-        <div class="suc" id="creditSuc"></div>
+        <div class="err" id="creditErr"></div><div class="suc" id="creditSuc"></div>
       </div>
     </div>
 
@@ -644,24 +639,193 @@ async function loadPayments() {
     </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No payments.</td></tr>';
 }
 
-// ── PLANS ─────────────────────────────────────────────────────────
-function loadPlans() {
-  document.getElementById('planCards').innerHTML = Object.entries(PLAN_INFO).map(([key, p]) => `
-    <div class="plan-card">
+// ── PLANS & PACKS ─────────────────────────────────────────────────
+
+let _plans=[], _packs=[];
+
+async function loadPlans() {
+  try {
+    const [rp, rc] = await Promise.all([
+      fetch(API+'/api/admin/plans', { headers: authHdr() }),
+      fetch(API+'/api/admin/packs', { headers: authHdr() }),
+    ]);
+    _plans = await rp.json();
+    _packs = await rc.json();
+    renderPlanCards();
+    renderPackCards();
+    // Refresh assign plan dropdown
+    const sel = document.getElementById('assignPlan');
+    sel.innerHTML = '<option value="free">Free</option>' +
+      _plans.map(p=>`<option value="${p.key}">${p.name} — ₹${p.price}/mo</option>`).join('');
+  } catch(e) { console.error(e); }
+}
+
+function renderPlanCards() {
+  const colors = ['tag-blue','tag-purple','tag-cyan','tag-yellow','tag-green'];
+  document.getElementById('planCards').innerHTML = _plans.map((p,i) => `
+    <div class="plan-card" style="${!p.isActive?'opacity:.5':''}">
       <div class="plan-card-header">
         <div>
-          <div class="plan-name">${p.label}</div>
-          <span class="tag ${p.color}" style="margin-top:5px;display:inline-flex">${key.toUpperCase()}</span>
+          <div class="plan-name">${p.name}</div>
+          <span class="tag ${colors[i%colors.length]}" style="margin-top:5px;display:inline-flex">${p.key.toUpperCase()}</span>
         </div>
         <div style="text-align:right">
-          <div class="plan-price">${p.price}<span>/mo</span></div>
+          <div class="plan-price">₹${p.price}<span>/mo</span></div>
+          ${!p.isActive?'<span class="tag tag-red" style="margin-top:4px;display:inline-flex">INACTIVE</span>':''}
         </div>
       </div>
-      <ul class="plan-features">${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
-      <div class="plan-actions">
-        <button class="btn-sm btn-blue" style="flex:1;height:32px" onclick="quickAssignPlan('${key}')">Assign to User</button>
+      <ul class="plan-features">${(p.features||[]).map(f=>`<li>${f}</li>`).join('') ||
+        `<li>${p.dailyLimit?p.dailyLimit+' searches/day':'Unlimited searches'}</li><li>${p.validityDays} day validity</li>`}
+      </ul>
+      <div class="plan-actions" style="gap:6px">
+        <button class="btn-sm btn-blue" style="flex:1;height:32px" onclick="quickAssignPlan('${p.key}')">Assign</button>
+        <button class="btn-sm btn-yellow" style="height:32px;padding:0 10px" onclick="openPlanModal('${p._id}')">Edit</button>
+        <button class="btn-sm btn-red" style="height:32px;padding:0 10px" onclick="deletePlan('${p._id}','${p.name}')">Del</button>
       </div>
-    </div>`).join('');
+    </div>`).join('') || '<div style="color:var(--muted);font-size:.85rem">No plans yet. Click + New Plan.</div>';
+}
+
+function renderPackCards() {
+  document.getElementById('packCards').innerHTML = _packs.map(p => `
+    <div class="plan-card" style="${!p.isActive?'opacity:.5':''}">
+      <div class="plan-card-header">
+        <div>
+          <div class="plan-name">${p.name}</div>
+          ${p.popular?'<span class="tag tag-yellow" style="margin-top:5px;display:inline-flex">POPULAR</span>':''}
+          ${!p.isActive?'<span class="tag tag-red" style="margin-top:5px;display:inline-flex">INACTIVE</span>':''}
+        </div>
+        <div style="text-align:right">
+          <div class="plan-price">₹${p.price}</div>
+        </div>
+      </div>
+      <ul class="plan-features">
+        <li>${p.credits} credits${p.bonus?` + ${p.bonus} bonus`:''}</li>
+        <li>₹${(p.price/(p.credits+(p.bonus||0))).toFixed(2)} per credit</li>
+      </ul>
+      <div class="plan-actions" style="gap:6px">
+        <button class="btn-sm btn-yellow" style="flex:1;height:32px" onclick="openPackModal('${p._id}')">Edit</button>
+        <button class="btn-sm btn-red" style="height:32px;padding:0 10px" onclick="deletePack('${p._id}','${p.name}')">Delete</button>
+      </div>
+    </div>`).join('') || '<div style="color:var(--muted);font-size:.85rem">No packs yet. Click + New Pack.</div>';
+}
+
+// ── Plan modal ─────────────────────────────────────────────────────
+function openPlanModal(id) {
+  document.getElementById('planModalErr').style.display='none';
+  document.getElementById('planModalSuc').style.display='none';
+  if (id) {
+    const p = _plans.find(x=>x._id===id);
+    if (!p) return;
+    document.getElementById('planModalTitle').textContent = 'Edit Plan — '+p.name;
+    document.getElementById('planModalId').value = id;
+    document.getElementById('pmKey').value    = p.key;
+    document.getElementById('pmName').value   = p.name;
+    document.getElementById('pmPrice').value  = p.price;
+    document.getElementById('pmDaily').value  = p.dailyLimit||0;
+    document.getElementById('pmDays').value   = p.validityDays||30;
+    document.getElementById('pmSort').value   = p.sortOrder||0;
+    document.getElementById('pmFeatures').value = (p.features||[]).join('\n');
+    document.getElementById('pmActive').checked = p.isActive!==false;
+    document.getElementById('pmKey').disabled = true; // key immutable on edit
+  } else {
+    document.getElementById('planModalTitle').textContent = 'New Subscription Plan';
+    document.getElementById('planModalId').value = '';
+    document.getElementById('pmKey').value='';document.getElementById('pmName').value='';
+    document.getElementById('pmPrice').value='';document.getElementById('pmDaily').value='0';
+    document.getElementById('pmDays').value='30';document.getElementById('pmSort').value='0';
+    document.getElementById('pmFeatures').value='';document.getElementById('pmActive').checked=true;
+    document.getElementById('pmKey').disabled = false;
+  }
+  document.getElementById('planModal').classList.add('show');
+}
+function closePlanModal() { document.getElementById('planModal').classList.remove('show'); }
+
+async function savePlan() {
+  const id    = document.getElementById('planModalId').value;
+  const body  = {
+    key:         document.getElementById('pmKey').value.trim().toLowerCase(),
+    name:        document.getElementById('pmName').value.trim(),
+    price:       parseFloat(document.getElementById('pmPrice').value)||0,
+    dailyLimit:  parseInt(document.getElementById('pmDaily').value)||0,
+    validityDays:parseInt(document.getElementById('pmDays').value)||30,
+    sortOrder:   parseInt(document.getElementById('pmSort').value)||0,
+    features:    document.getElementById('pmFeatures').value.split('\n').map(f=>f.trim()).filter(Boolean),
+    isActive:    document.getElementById('pmActive').checked,
+  };
+  if (!body.name || !body.key) { showModalMsg('planModalErr','planModalSuc',false,'Key and Name are required.'); return; }
+  const url    = id ? API+'/api/admin/plans/'+id : API+'/api/admin/plans';
+  const method = id ? 'PUT' : 'POST';
+  const r = await fetch(url,{method,headers:authHdr(),body:JSON.stringify(body)});
+  const d = await r.json();
+  if (r.ok) { showModalMsg('planModalErr','planModalSuc',true,id?'Plan updated!':'Plan created!'); await loadPlans(); }
+  else showModalMsg('planModalErr','planModalSuc',false,d.message||'Failed.');
+}
+
+async function deletePlan(id, name) {
+  if (!confirm(`Delete plan "${name}"? This cannot be undone.`)) return;
+  const r = await fetch(API+'/api/admin/plans/'+id,{method:'DELETE',headers:authHdr()});
+  const d = await r.json();
+  if (r.ok) loadPlans();
+  else alert(d.message||'Delete failed.');
+}
+
+// ── Pack modal ─────────────────────────────────────────────────────
+function openPackModal(id) {
+  document.getElementById('packModalErr').style.display='none';
+  document.getElementById('packModalSuc').style.display='none';
+  if (id) {
+    const p = _packs.find(x=>x._id===id);
+    if (!p) return;
+    document.getElementById('packModalTitle').textContent = 'Edit Pack — '+p.name;
+    document.getElementById('packModalId').value = id;
+    document.getElementById('pcName').value    = p.name;
+    document.getElementById('pcCredits').value = p.credits;
+    document.getElementById('pcPrice').value   = p.price;
+    document.getElementById('pcBonus').value   = p.bonus||0;
+    document.getElementById('pcPopular').checked = p.popular||false;
+    document.getElementById('pcActive').checked  = p.isActive!==false;
+  } else {
+    document.getElementById('packModalTitle').textContent = 'New Credit Pack';
+    document.getElementById('packModalId').value='';
+    document.getElementById('pcName').value='';document.getElementById('pcCredits').value='';
+    document.getElementById('pcPrice').value='';document.getElementById('pcBonus').value='0';
+    document.getElementById('pcPopular').checked=false;document.getElementById('pcActive').checked=true;
+  }
+  document.getElementById('packModal').classList.add('show');
+}
+function closePackModal() { document.getElementById('packModal').classList.remove('show'); }
+
+async function savePack() {
+  const id   = document.getElementById('packModalId').value;
+  const body = {
+    name:    document.getElementById('pcName').value.trim(),
+    credits: parseInt(document.getElementById('pcCredits').value)||0,
+    price:   parseFloat(document.getElementById('pcPrice').value)||0,
+    bonus:   parseInt(document.getElementById('pcBonus').value)||0,
+    popular: document.getElementById('pcPopular').checked,
+    isActive:document.getElementById('pcActive').checked,
+  };
+  if (!body.name || !body.credits || !body.price) { showModalMsg('packModalErr','packModalSuc',false,'Name, credits and price are required.'); return; }
+  const url    = id ? API+'/api/admin/packs/'+id : API+'/api/admin/packs';
+  const method = id ? 'PUT' : 'POST';
+  const r = await fetch(url,{method,headers:authHdr(),body:JSON.stringify(body)});
+  const d = await r.json();
+  if (r.ok) { showModalMsg('packModalErr','packModalSuc',true,id?'Pack updated!':'Pack created!'); await loadPlans(); }
+  else showModalMsg('packModalErr','packModalSuc',false,d.message||'Failed.');
+}
+
+async function deletePack(id, name) {
+  if (!confirm(`Delete pack "${name}"?`)) return;
+  const r = await fetch(API+'/api/admin/packs/'+id,{method:'DELETE',headers:authHdr()});
+  const d = await r.json();
+  if (r.ok) loadPlans();
+  else alert(d.message||'Delete failed.');
+}
+
+function showModalMsg(errId,sucId,ok,msg) {
+  document.getElementById(errId).style.display = ok?'none':'block';
+  document.getElementById(sucId).style.display = ok?'block':'none';
+  document.getElementById(ok?sucId:errId).textContent = msg;
 }
 
 function quickAssignPlan(plan) {
@@ -823,5 +987,69 @@ function toggleSidebar(){
   document.getElementById('overlay').classList.toggle('show');
 }
 </script>
+
+<!-- ── Plan modal ── -->
+<div class="modal-bg" id="planModal">
+  <div class="modal" style="max-width:540px">
+    <h2 id="planModalTitle">New Subscription Plan</h2>
+    <input type="hidden" id="planModalId"/>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-field"><label>Plan Key (e.g. pro)</label>
+        <input type="text" id="pmKey" placeholder="pro" id="pmKey"/></div>
+      <div class="form-field"><label>Display Name</label>
+        <input type="text" id="pmName" placeholder="Pro"/></div>
+      <div class="form-field"><label>Price (₹/month)</label>
+        <input type="number" id="pmPrice" placeholder="599" min="0"/></div>
+      <div class="form-field"><label>Daily Search Limit (0 = unlimited)</label>
+        <input type="number" id="pmDaily" placeholder="50" min="0"/></div>
+      <div class="form-field"><label>Validity (days)</label>
+        <input type="number" id="pmDays" placeholder="30" min="1" value="30"/></div>
+      <div class="form-field"><label>Sort Order</label>
+        <input type="number" id="pmSort" placeholder="1" min="0" value="0"/></div>
+    </div>
+    <div class="form-field"><label>Features (one per line)</label>
+      <textarea id="pmFeatures" style="height:80px" placeholder="50 searches/day&#10;All 14 modules&#10;Priority support"></textarea></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <input type="checkbox" id="pmActive" checked/>
+      <label for="pmActive" style="font-size:.84rem;color:var(--muted)">Active (visible to users)</label>
+    </div>
+    <div class="err" id="planModalErr"></div>
+    <div class="suc" id="planModalSuc"></div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closePlanModal()">Cancel</button>
+      <button class="btn-modal-ok" onclick="savePlan()">Save Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Pack modal ── -->
+<div class="modal-bg" id="packModal">
+  <div class="modal" style="max-width:480px">
+    <h2 id="packModalTitle">New Credit Pack</h2>
+    <input type="hidden" id="packModalId"/>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-field"><label>Pack Name</label>
+        <input type="text" id="pcName" placeholder="100 Credits"/></div>
+      <div class="form-field"><label>Credits</label>
+        <input type="number" id="pcCredits" placeholder="100" min="1"/></div>
+      <div class="form-field"><label>Price (₹)</label>
+        <input type="number" id="pcPrice" placeholder="249" min="0"/></div>
+      <div class="form-field"><label>Bonus Credits</label>
+        <input type="number" id="pcBonus" placeholder="0" min="0" value="0"/></div>
+    </div>
+    <div style="display:flex;gap:20px;margin-bottom:10px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted)">
+        <input type="checkbox" id="pcPopular"/> Mark as Popular</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted)">
+        <input type="checkbox" id="pcActive" checked/> Active</label>
+    </div>
+    <div class="err" id="packModalErr"></div>
+    <div class="suc" id="packModalSuc"></div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closePackModal()">Cancel</button>
+      <button class="btn-modal-ok" onclick="savePack()">Save Pack</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
