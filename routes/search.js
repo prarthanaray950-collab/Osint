@@ -78,11 +78,15 @@ router.post('/', async (req, res) => {
   if (!success)
     return res.status(502).json({ message: error || 'Search failed. Please try again.' });
 
+  // Unwrap relay envelope: relay returns { status:"success", data:{raw_text,...}, message, timestamp }
+  // Always pass the inner data so frontend gets { raw_text, parsed_data, ... } directly
+  const innerData = (result && result.status === 'success' && result.data) ? result.data : result;
+
   res.json({
     success:     true,
     type,
     query,
-    data:        result,
+    data:        innerData,
     creditsUsed: hasPlan ? 0 : cost,
     creditsLeft: hasPlan ? null : (user.credits - cost),
   });
