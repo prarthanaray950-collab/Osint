@@ -8,21 +8,22 @@
 :root{--bg:#0A0E1A;--bg2:#0F1629;--bg3:#141C35;--border:#1E2D50;--accent:#3B82F6;--accent2:#06B6D4;--green:#10B981;--red:#EF4444;--yellow:#F59E0B;--purple:#8B5CF6;--text:#E2E8F0;--muted:#64748B;--sidebar:230px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
-.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:30}
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:30;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:9px;padding:20px;text-decoration:none}
 .logo-mark{width:32px;height:32px;background:linear-gradient(135deg,#EF4444,#8B5CF6);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;flex-shrink:0}
 .logo-text{font-size:0.95rem;font-weight:700;letter-spacing:1px}
 .admin-badge{font-size:0.6rem;background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);border-radius:3px;padding:1px 6px;letter-spacing:0.1em;display:block;margin-top:1px}
 .sidebar-divider{height:1px;background:var(--border);margin:0 16px 8px}
-nav.sidebar-nav{flex:1;padding:0 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-section-label{font-size:0.6rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);padding:10px 22px 4px}
+nav.sidebar-nav{flex:1;padding:0 10px;display:flex;flex-direction:column;gap:2px}
 .nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:0.845rem;color:var(--muted);transition:all 0.15s;border:none;background:none;width:100%;text-align:left}
 .nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
 .nav-item.active{background:rgba(59,130,246,0.12);color:var(--accent);font-weight:500}
 .nav-icon{font-size:1rem;width:22px;text-align:center;flex-shrink:0}
-.sidebar-bottom{padding:14px 10px}
+.sidebar-bottom{padding:14px 10px;border-top:1px solid var(--border)}
 .btn-logout{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;background:none;border:none;color:var(--muted);font-size:0.8rem;cursor:pointer;border-radius:7px;transition:all 0.15s}
 .btn-logout:hover{color:var(--red);background:rgba(239,68,68,0.06)}
-.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-width:0}
 .topbar{height:60px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:var(--bg2);position:sticky;top:0;z-index:20}
 .topbar-title{font-size:1rem;font-weight:600}
 .admin-chip{display:flex;align-items:center;gap:6px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:5px 12px;font-size:0.72rem;color:var(--red);font-weight:500}
@@ -30,7 +31,7 @@ nav.sidebar-nav{flex:1;padding:0 10px;display:flex;flex-direction:column;gap:2px
 .tab-panel{display:none}.tab-panel.active{display:block}
 
 /* STATS */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
 .stat-label{font-size:0.7rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .stat-val{font-size:1.8rem;font-weight:700;font-family:'JetBrains Mono',monospace}
@@ -56,8 +57,9 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 .tag-yellow{background:rgba(245,158,11,0.12);color:#FCD34D}
 .tag-purple{background:rgba(139,92,246,0.12);color:#C4B5FD}
 .tag-muted{background:rgba(100,116,139,0.12);color:#CBD5E1}
+.tag-cyan{background:rgba(6,182,212,0.12);color:#67E8F9}
 
-/* ACTION BUTTONS */
+/* BUTTONS */
 .btn-sm{height:28px;padding:0 10px;border-radius:5px;font-size:0.72rem;font-weight:500;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all 0.15s}
 .btn-green{background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.3)}
 .btn-green:hover{background:var(--green);color:#0A0E1A}
@@ -70,6 +72,8 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 .btn-purple{background:rgba(139,92,246,0.12);color:var(--purple);border:1px solid rgba(139,92,246,0.3)}
 .btn-purple:hover{background:var(--purple);color:white}
 .actions{display:flex;gap:5px;flex-wrap:wrap}
+.btn-primary{height:42px;padding:0 22px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.845rem;font-weight:500;cursor:pointer;transition:all 0.15s}
+.btn-primary:hover{opacity:0.88;transform:translateY(-1px)}
 
 /* PAGINATION */
 .pagination{display:flex;gap:6px;padding:14px 16px;justify-content:center;border-top:1px solid var(--border)}
@@ -79,29 +83,53 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 /* MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center}
 .modal-bg.show{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:480px;width:calc(100%-40px);animation:fadeUp 0.3s ease;max-height:90vh;overflow-y:auto}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:500px;width:calc(100% - 40px);animation:fadeUp 0.3s ease;max-height:90vh;overflow-y:auto}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.modal h2{font-size:1.1rem;font-weight:600;margin-bottom:20px}
+.modal h2{font-size:1.1rem;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:8px}
 .form-field{margin-bottom:14px}
 .form-field label{display:block;font-size:0.7rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-.form-field input,.form-field select,.form-field textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.845rem;outline:none}
+.form-field input,.form-field select,.form-field textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.845rem;outline:none;transition:border-color 0.2s}
 .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--accent)}
 .form-field textarea{height:90px;resize:vertical}
 .form-field select option{background:var(--bg2)}
 .modal-btns{display:flex;gap:10px;margin-top:18px}
 .btn-modal-cancel{flex:1;height:40px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-family:'Inter',sans-serif}
 .btn-modal-ok{flex:1;height:40px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500}
-.err{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:#FCA5A5;padding:10px 14px;font-size:0.82rem;margin-top:10px;display:none}
-.suc{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:7px;color:#6EE7B7;padding:10px 14px;font-size:0.82rem;margin-top:10px;display:none}
+.err{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:#FCA5A5;padding:10px 14px;font-size:0.82rem;margin-top:10px;display:none;line-height:1.5}
+.suc{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:7px;color:#6EE7B7;padding:10px 14px;font-size:0.82rem;margin-top:10px;display:none;line-height:1.5}
+
+/* CARDS */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px}
+.plan-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;position:relative;transition:border-color 0.2s}
+.plan-card:hover{border-color:var(--accent)}
+.plan-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.plan-name{font-size:1rem;font-weight:700;letter-spacing:0.05em}
+.plan-price{font-size:1.5rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent)}
+.plan-price span{font-size:0.75rem;font-weight:400;color:var(--muted)}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:18px}
+.plan-features li{font-size:0.8rem;color:var(--muted);display:flex;align-items:center;gap:7px}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:700;font-size:0.75rem}
+.plan-actions{display:flex;gap:8px}
+
+/* SETTINGS */
+.settings-section{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px}
+.settings-section h3{font-size:0.9rem;font-weight:600;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(30,45,80,0.4);gap:16px}
+.setting-row:last-child{border-bottom:none;padding-bottom:0}
+.setting-label{font-size:0.845rem;font-weight:500}
+.setting-desc{font-size:0.75rem;color:var(--muted);margin-top:2px}
+.setting-input{height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:0 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.82rem;outline:none;width:240px}
+.setting-input:focus{border-color:var(--accent)}
+.setting-input-wide{width:320px}
 
 /* BANNER FORM */
 .new-banner-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px}
 .new-banner-card h3{font-size:0.9rem;font-weight:600;margin-bottom:16px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.btn-primary{height:42px;padding:0 22px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.845rem;font-weight:500;cursor:pointer}
 </style>
 </head>
 <body>
+
 <!-- SIDEBAR -->
 <div class="sidebar">
   <a href="/" class="sidebar-logo">
@@ -113,11 +141,16 @@ tr:hover td{background:rgba(255,255,255,0.02)}
   </a>
   <div class="sidebar-divider"></div>
   <nav class="sidebar-nav">
+    <div class="nav-section-label">Dashboard</div>
     <button class="nav-item active" onclick="switchTab('overview',this)"><span class="nav-icon">📊</span> Overview</button>
     <button class="nav-item" onclick="switchTab('users',this)"><span class="nav-icon">👥</span> Users</button>
     <button class="nav-item" onclick="switchTab('searches',this)"><span class="nav-icon">🔍</span> Search Logs</button>
     <button class="nav-item" onclick="switchTab('payments',this)"><span class="nav-icon">💰</span> Payments</button>
+    <div class="nav-section-label" style="margin-top:8px">Management</div>
+    <button class="nav-item" onclick="switchTab('plans',this)"><span class="nav-icon">📦</span> Plans & Credits</button>
     <button class="nav-item" onclick="switchTab('banners',this)"><span class="nav-icon">📢</span> Banners</button>
+    <button class="nav-item" onclick="switchTab('settings',this)"><span class="nav-icon">⚙️</span> Settings</button>
+    <div class="nav-section-label" style="margin-top:8px">Navigation</div>
     <button class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon">↩️</span> User Dashboard</button>
   </nav>
   <div class="sidebar-bottom">
@@ -191,13 +224,13 @@ tr:hover td{background:rgba(255,255,255,0.02)}
             <input class="search-input-sm" type="text" id="searchLogsQ" placeholder="Search query…" oninput="debounce(()=>loadSearchLogs(1),400)()"/>
             <select class="filter-sel" id="searchLogsType" onchange="loadSearchLogs(1)">
               <option value="">All Types</option>
-              <option value="phone">Phone</option>
-              <option value="vehicle">Vehicle</option>
-              <option value="telegram">Telegram</option>
-              <option value="ip">IP</option>
-              <option value="gst">GST</option>
-              <option value="instagram">Instagram</option>
-              <option value="imei">IMEI</option>
+              <option value="phone">Phone</option><option value="family">Family</option>
+              <option value="aadhar">Aadhar</option><option value="vehicle">Vehicle</option>
+              <option value="telegram">Telegram</option><option value="imei">IMEI</option>
+              <option value="gst">GST</option><option value="instagram">Instagram</option>
+              <option value="ip">IP</option><option value="ifsc">IFSC</option>
+              <option value="email">Email</option><option value="upi">UPI</option>
+              <option value="pakistan">Pakistan</option><option value="leak">Leak</option>
             </select>
           </div>
         </div>
@@ -217,6 +250,66 @@ tr:hover td{background:rgba(255,255,255,0.02)}
           <thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
           <tbody id="paymentsBody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- PLANS & CREDITS -->
+    <div class="tab-panel" id="tab-plans">
+      <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Subscription Plans</h2>
+          <p style="font-size:0.8rem;color:var(--muted)">Assign plans to users or update plan durations manually.</p>
+        </div>
+      </div>
+
+      <!-- Plan cards -->
+      <div class="card-grid" id="planCards">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Assign plan to user -->
+      <div class="settings-section">
+        <h3>🎯 Assign Plan to User</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;flex-wrap:wrap">
+          <div class="form-field" style="margin:0">
+            <label>User Email</label>
+            <input type="email" id="assignEmail" placeholder="user@email.com" class="setting-input" style="width:100%"/>
+          </div>
+          <div class="form-field" style="margin:0">
+            <label>Plan</label>
+            <select id="assignPlan" class="setting-input" style="width:100%">
+              <option value="free">Free</option>
+              <option value="basic">Basic</option>
+              <option value="pro">Pro</option>
+              <option value="elite">Elite</option>
+            </select>
+          </div>
+          <div class="form-field" style="margin:0">
+            <label>Duration (days)</label>
+            <input type="number" id="assignDays" value="30" min="1" class="setting-input" style="width:100%"/>
+          </div>
+          <button class="btn-primary" style="height:38px;padding:0 18px;white-space:nowrap" onclick="assignPlanToUser()">Assign Plan</button>
+        </div>
+        <div class="err" id="assignErr"></div>
+        <div class="suc" id="assignSuc"></div>
+      </div>
+
+      <!-- Add credits to user -->
+      <div class="settings-section">
+        <h3>💳 Add / Deduct Credits</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end">
+          <div class="form-field" style="margin:0">
+            <label>User Email</label>
+            <input type="email" id="creditEmail" placeholder="user@email.com" class="setting-input" style="width:100%"/>
+          </div>
+          <div class="form-field" style="margin:0">
+            <label>Amount (use − to deduct)</label>
+            <input type="number" id="creditAmt" placeholder="e.g. 50 or -10" class="setting-input" style="width:100%"/>
+          </div>
+          <button class="btn-primary" style="height:38px;padding:0 18px;white-space:nowrap" onclick="addCreditsByEmail()">Update Credits</button>
+        </div>
+        <div class="err" id="creditErr"></div>
+        <div class="suc" id="creditSuc"></div>
       </div>
     </div>
 
@@ -242,7 +335,6 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         <div class="err" id="bannerErr"></div>
         <div class="suc" id="bannerSuc"></div>
       </div>
-
       <div class="table-wrap">
         <div class="table-header"><div class="table-title">Active Banners</div></div>
         <table>
@@ -252,25 +344,69 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       </div>
     </div>
 
+    <!-- SETTINGS -->
+    <div class="tab-panel" id="tab-settings">
+      <div class="settings-section">
+        <h3>🔑 Relay API Configuration</h3>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Relay API Key</div>
+            <div class="setting-desc">The X-Api-Key sent to the relay server for all searches</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="password" id="relayKeyInput" class="setting-input setting-input-wide" placeholder="Enter relay API key…"/>
+            <button class="btn-sm btn-blue" onclick="saveRelaySetting()">Save</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Relay Server URL</div>
+            <div class="setting-desc">Base URL of the relay bot</div>
+          </div>
+          <input type="text" id="relayUrlInput" class="setting-input setting-input-wide" value="https://relay-wzlz.onrender.com" readonly style="opacity:0.5"/>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Relay Status</div>
+            <div class="setting-desc">Live ping to relay server</div>
+          </div>
+          <span id="relayStatus" class="tag tag-muted">Checking…</span>
+        </div>
+        <div class="suc" id="relaySettingSuc"></div>
+        <div class="err" id="relaySettingErr"></div>
+      </div>
+
+      <div class="settings-section">
+        <h3>👤 Admin Account</h3>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Logged in as</div>
+            <div class="setting-desc" id="adminEmailDisplay">—</div>
+          </div>
+          <button class="btn-sm btn-red" onclick="logout()">Sign Out</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- User detail modal -->
+<!-- User manage modal -->
 <div class="modal-bg" id="userModal">
   <div class="modal">
     <h2 id="modalUserName">User Actions</h2>
     <div id="modalUserInfo" style="font-size:0.82rem;color:var(--muted);margin-bottom:16px"></div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button class="btn-sm btn-green" id="banBtn" onclick="adminAction('ban')">Ban User</button>
-      <button class="btn-sm btn-green" id="unbanBtn" onclick="adminAction('unban')">Unban User</button>
-      <button class="btn-sm btn-blue" onclick="adminAction('activate')">Activate</button>
-      <button class="btn-sm btn-red" onclick="adminAction('deactivate')">Deactivate</button>
-      <button class="btn-sm btn-purple" onclick="adminAction('make-admin')">Make Admin</button>
+      <button class="btn-sm btn-red" onclick="adminAction('ban')">🚫 Ban User</button>
+      <button class="btn-sm btn-green" onclick="adminAction('unban')">✅ Unban User</button>
+      <button class="btn-sm btn-blue" onclick="adminAction('activate')">▶ Activate</button>
+      <button class="btn-sm btn-yellow" onclick="adminAction('deactivate')">⏸ Deactivate</button>
+      <button class="btn-sm btn-purple" onclick="adminAction('make-admin')">⭐ Make Admin</button>
     </div>
 
     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-      <div class="form-field"><label>Add/Deduct Credits</label>
+      <div class="form-field"><label>Add / Deduct Credits</label>
         <input type="number" id="creditAmount" placeholder="e.g. 50 or -10"/>
       </div>
       <button class="btn-sm btn-yellow" style="height:36px;width:100%" onclick="adminAddCredits()">Update Credits</button>
@@ -278,10 +414,15 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 
     <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:16px">
       <div class="form-field"><label>Change Plan</label>
-        <select id="changePlanSel"><option value="free">Free</option><option value="basic">Basic</option><option value="pro">Pro</option><option value="elite">Elite</option></select>
+        <select id="changePlanSel">
+          <option value="free">Free</option>
+          <option value="basic">Basic — ₹299/mo</option>
+          <option value="pro">Pro — ₹599/mo</option>
+          <option value="elite">Elite — ₹999/mo</option>
+        </select>
       </div>
       <div class="form-field"><label>Duration (days)</label><input type="number" id="planDays" value="30" min="1"/></div>
-      <button class="btn-sm btn-blue" style="height:36px;width:100%" onclick="adminChangePlan()">Change Plan</button>
+      <button class="btn-sm btn-blue" style="height:36px;width:100%" onclick="adminChangePlan()">✅ Change Plan</button>
     </div>
 
     <div class="err" id="modalErr"></div>
@@ -293,7 +434,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 <!-- Ban reason modal -->
 <div class="modal-bg" id="banModal">
   <div class="modal">
-    <h2>Ban User</h2>
+    <h2>🚫 Ban User</h2>
     <div class="form-field"><label>Ban Reason</label><input type="text" id="banReason" placeholder="e.g. Terms violation, abuse…"/></div>
     <div class="err" id="banErr"></div>
     <div class="modal-btns">
@@ -304,13 +445,20 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 </div>
 
 <script>
-const API = '';
+const API   = '';
 const TOKEN = localStorage.getItem('intelToken');
-if (!TOKEN) { window.location.href = 'login.html'; }
+if (!TOKEN) window.location.href = 'login.html';
 function authHdr() { return { 'Content-Type':'application/json', 'Authorization':'Bearer '+TOKEN }; }
 
 let modalUserId = null;
-let modalUserData = null;
+
+const PLAN_INFO = {
+  free:  { label:'Free',  price:'₹0',    color:'tag-muted',  features:['5 credits on signup','Pay-per-search','No daily limit'] },
+  basic: { label:'Basic', price:'₹299',  color:'tag-blue',   features:['20 searches/day','All 14 modules','30-day validity'] },
+  pro:   { label:'Pro',   price:'₹599',  color:'tag-purple', features:['50 searches/day','All 14 modules','Priority support'] },
+  elite: { label:'Elite', price:'₹999',  color:'tag-yellow', features:['Unlimited searches','All 14 modules','24/7 support'] },
+};
+const planClass = { free:'tag-muted', basic:'tag-blue', pro:'tag-purple', elite:'tag-yellow' };
 
 // ── OVERVIEW ──────────────────────────────────────────────────────
 async function loadOverview() {
@@ -322,7 +470,6 @@ async function loadOverview() {
   document.getElementById('statRevenue').textContent  = '₹'+(d.revenue||0);
   document.getElementById('statBanned').textContent   = d.banned||0;
 
-  const planClass = { free:'tag-muted', basic:'tag-blue', pro:'tag-purple', elite:'tag-yellow' };
   document.getElementById('recentUsersBody').innerHTML = (d.recentUsers||[]).map(u => `
     <tr>
       <td>${u.name}</td>
@@ -333,11 +480,11 @@ async function loadOverview() {
       <td style="font-size:0.78rem;color:var(--muted)">${new Date(u.createdAt).toLocaleDateString('en-IN')}</td>
     </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No users.</td></tr>';
 
-  const typeTag = { phone:'tag-blue',vehicle:'tag-green',telegram:'tag-purple',ip:'tag-yellow',gst:'tag-purple',instagram:'tag-yellow',imei:'tag-muted' };
+  const typeTag = t => (['telegram','instagram','leak','aadhar'].includes(t)?'tag-purple':['phone','family','vehicle','imei'].includes(t)?'tag-blue':['gst','upi','ifsc'].includes(t)?'tag-green':['ip','pakistan'].includes(t)?'tag-yellow':'tag-muted');
   document.getElementById('recentSearchesBody').innerHTML = (d.recentSearches||[]).map(s => `
     <tr>
       <td style="font-size:0.78rem;color:var(--muted)">${s.userEmail||'—'}</td>
-      <td><span class="tag ${typeTag[s.searchType]||'tag-muted'}">${s.searchType}</span></td>
+      <td><span class="tag ${typeTag(s.searchType)}">${s.searchType}</span></td>
       <td class="mono">${s.query}</td>
       <td><span class="tag ${s.success?'tag-green':'tag-red'}">${s.success?'OK':'FAIL'}</span></td>
       <td style="font-size:0.78rem;color:var(--muted)">${new Date(s.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
@@ -349,10 +496,8 @@ async function loadUsers(page=1) {
   const q      = document.getElementById('userSearch')?.value||'';
   const plan   = document.getElementById('userPlanFilter')?.value||'';
   const status = document.getElementById('userStatusFilter')?.value||'';
-  const params = new URLSearchParams({ page, q, plan, status });
-  const r = await fetch(API+'/api/admin/users?'+params, { headers: authHdr() });
+  const r = await fetch(API+'/api/admin/users?'+new URLSearchParams({page,q,plan,status}), { headers: authHdr() });
   const d = await r.json();
-  const planClass = { free:'tag-muted', basic:'tag-blue', pro:'tag-purple', elite:'tag-yellow' };
 
   document.getElementById('usersBody').innerHTML = (d.users||[]).map(u => `
     <tr>
@@ -372,22 +517,21 @@ async function loadUsers(page=1) {
 
 function openUserModal(id, name, email, plan, isBanned, isActive, credits) {
   modalUserId = id;
-  modalUserData = { name, email, plan, isBanned, isActive, credits };
   document.getElementById('modalUserName').textContent = name;
   document.getElementById('modalUserInfo').textContent = `${email} · Plan: ${plan} · Credits: ${credits}`;
   document.getElementById('changePlanSel').value = plan;
+  document.getElementById('planDays').value = 30;
+  document.getElementById('creditAmount').value = '';
   document.getElementById('modalErr').style.display = 'none';
   document.getElementById('modalSuc').style.display = 'none';
   document.getElementById('userModal').classList.add('show');
 }
-
 function closeModal() { document.getElementById('userModal').classList.remove('show'); }
 
 async function adminAction(action) {
   if (!modalUserId) return;
   if (action === 'ban') { document.getElementById('banModal').classList.add('show'); return; }
-  const endpoint = `/api/admin/users/${modalUserId}/${action}`;
-  const r = await fetch(API+endpoint, { method:'POST', headers: authHdr() });
+  const r = await fetch(API+`/api/admin/users/${modalUserId}/${action}`, { method:'POST', headers: authHdr() });
   const d = await r.json();
   showModalResult(r.ok, d.message);
   if (r.ok) loadUsers(1);
@@ -406,13 +550,13 @@ async function confirmBan() {
 
 async function adminAddCredits() {
   const amount = parseInt(document.getElementById('creditAmount').value);
-  if (isNaN(amount)) { showModalResult(false, 'Enter a valid number.'); return; }
+  if (isNaN(amount)) { showModalResult(false,'Enter a valid number.'); return; }
   const r = await fetch(API+`/api/admin/users/${modalUserId}/credits`, {
     method:'POST', headers: authHdr(), body: JSON.stringify({ amount })
   });
   const d = await r.json();
   showModalResult(r.ok, d.message);
-  if (r.ok) { loadUsers(1); }
+  if (r.ok) loadUsers(1);
 }
 
 async function adminChangePlan() {
@@ -436,23 +580,20 @@ function showModalResult(ok, msg) {
 async function loadSearchLogs(page=1) {
   const q    = document.getElementById('searchLogsQ')?.value||'';
   const type = document.getElementById('searchLogsType')?.value||'';
-  const params = new URLSearchParams({ page, q, type });
-  const r = await fetch(API+'/api/admin/searches?'+params, { headers: authHdr() });
+  const r = await fetch(API+'/api/admin/searches?'+new URLSearchParams({page,q,type}), { headers: authHdr() });
   const d = await r.json();
-  const typeTag = { phone:'tag-blue',vehicle:'tag-green',telegram:'tag-purple',ip:'tag-yellow',gst:'tag-purple',instagram:'tag-yellow',imei:'tag-muted' };
+  const typeTag = t => (['telegram','instagram','leak','aadhar'].includes(t)?'tag-purple':['phone','family','vehicle','imei'].includes(t)?'tag-blue':['gst','upi','ifsc'].includes(t)?'tag-green':['ip','pakistan'].includes(t)?'tag-yellow':'tag-muted');
 
   document.getElementById('searchLogsBody').innerHTML = (d.logs||[]).map(s => `
     <tr>
       <td style="font-size:0.72rem;color:var(--muted)">${s.userEmail||'—'}</td>
-      <td><span class="tag ${typeTag[s.searchType]||'tag-muted'}">${s.searchType}</span></td>
+      <td><span class="tag ${typeTag(s.searchType)}">${s.searchType}</span></td>
       <td class="mono" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.query}</td>
       <td><span class="tag ${s.success?'tag-green':'tag-red'}">${s.success?'OK':'FAIL'}</span></td>
       <td class="mono">${s.creditsUsed}</td>
       <td style="font-size:0.72rem;color:var(--muted)">${s.ipAddress||'—'}</td>
       <td style="font-size:0.72rem;color:var(--muted)">${new Date(s.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
-      <td><div class="actions">
-        <button class="btn-sm btn-red" onclick="deleteSearch('${s._id}')">Delete</button>
-      </div></td>
+      <td><button class="btn-sm btn-red" onclick="deleteSearch('${s._id}')">Delete</button></td>
     </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">No logs found.</td></tr>';
 
   renderPagination('searchLogsPagination', d.page, d.pages, 'loadSearchLogs');
@@ -469,45 +610,104 @@ async function loadPayments() {
   const r = await fetch(API+'/api/admin/payments', { headers: authHdr() });
   const d = await r.json();
   const statusTag = { paid:'tag-green', pending:'tag-yellow', failed:'tag-red' };
-
   document.getElementById('paymentsBody').innerHTML = (d||[]).map(p => `
     <tr>
       <td style="font-size:0.78rem;color:var(--muted)">${p.userEmail||'—'}</td>
       <td><span class="tag tag-blue">${p.type}</span></td>
-      <td style="font-weight:600;color:var(--text)">₹${p.amount}</td>
+      <td style="font-weight:600">₹${p.amount}</td>
       <td><span class="tag ${statusTag[p.status]||'tag-muted'}">${p.status}</span></td>
       <td style="font-size:0.72rem;color:var(--muted)">${new Date(p.createdAt).toLocaleString('en-IN')}</td>
     </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No payments.</td></tr>';
 }
 
+// ── PLANS ─────────────────────────────────────────────────────────
+function loadPlans() {
+  document.getElementById('planCards').innerHTML = Object.entries(PLAN_INFO).map(([key, p]) => `
+    <div class="plan-card">
+      <div class="plan-card-header">
+        <div>
+          <div class="plan-name">${p.label}</div>
+          <span class="tag ${p.color}" style="margin-top:5px;display:inline-flex">${key.toUpperCase()}</span>
+        </div>
+        <div style="text-align:right">
+          <div class="plan-price">${p.price}<span>/mo</span></div>
+        </div>
+      </div>
+      <ul class="plan-features">${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <div class="plan-actions">
+        <button class="btn-sm btn-blue" style="flex:1;height:32px" onclick="quickAssignPlan('${key}')">Assign to User</button>
+      </div>
+    </div>`).join('');
+}
+
+function quickAssignPlan(plan) {
+  document.getElementById('assignPlan').value = plan;
+  document.getElementById('assignEmail').focus();
+}
+
+async function assignPlanToUser() {
+  const email = document.getElementById('assignEmail').value.trim().toLowerCase();
+  const plan  = document.getElementById('assignPlan').value;
+  const days  = parseInt(document.getElementById('assignDays').value)||30;
+  if (!email) { showResult('assignErr','assignSuc',false,'Enter a user email.'); return; }
+
+  // Find user by email first
+  const ru = await fetch(API+'/api/admin/users?q='+encodeURIComponent(email)+'&page=1', { headers: authHdr() });
+  const du = await ru.json();
+  const user = (du.users||[]).find(u => u.email === email);
+  if (!user) { showResult('assignErr','assignSuc',false,'User not found with that email.'); return; }
+
+  const r = await fetch(API+`/api/admin/users/${user._id}/plan`, {
+    method:'POST', headers: authHdr(), body: JSON.stringify({ plan, days })
+  });
+  const d = await r.json();
+  showResult('assignErr','assignSuc', r.ok, r.ok ? `Plan changed to ${plan} for ${email} (${days} days).` : d.message);
+}
+
+async function addCreditsByEmail() {
+  const email  = document.getElementById('creditEmail').value.trim().toLowerCase();
+  const amount = parseInt(document.getElementById('creditAmt').value);
+  if (!email) { showResult('creditErr','creditSuc',false,'Enter a user email.'); return; }
+  if (isNaN(amount)) { showResult('creditErr','creditSuc',false,'Enter a valid amount.'); return; }
+
+  const ru = await fetch(API+'/api/admin/users?q='+encodeURIComponent(email)+'&page=1', { headers: authHdr() });
+  const du = await ru.json();
+  const user = (du.users||[]).find(u => u.email === email);
+  if (!user) { showResult('creditErr','creditSuc',false,'User not found with that email.'); return; }
+
+  const r = await fetch(API+`/api/admin/users/${user._id}/credits`, {
+    method:'POST', headers: authHdr(), body: JSON.stringify({ amount })
+  });
+  const d = await r.json();
+  showResult('creditErr','creditSuc', r.ok, r.ok ? `${amount>0?'Added':'Deducted'} ${Math.abs(amount)} credits for ${email}.` : d.message);
+}
+
+function showResult(errId, sucId, ok, msg) {
+  document.getElementById(errId).style.display = ok ? 'none' : 'block';
+  document.getElementById(sucId).style.display = ok ? 'block' : 'none';
+  document.getElementById(ok?sucId:errId).textContent = msg;
+}
+
 // ── BANNERS ───────────────────────────────────────────────────────
 async function createBanner() {
-  const title       = document.getElementById('bannerTitle').value.trim();
-  const message     = document.getElementById('bannerMsg').value.trim();
-  const type        = document.getElementById('bannerType').value;
-  const targetPlan  = document.getElementById('bannerTarget').value;
+  const title = document.getElementById('bannerTitle').value.trim();
+  const message = document.getElementById('bannerMsg').value.trim();
+  const type = document.getElementById('bannerType').value;
+  const targetPlan = document.getElementById('bannerTarget').value;
   const dismissible = document.getElementById('bannerDismissible').checked;
-  if (!title || !message) { showBannerResult(false, 'Title and message are required.'); return; }
-
+  if (!title || !message) { showResult('bannerErr','bannerSuc',false,'Title and message are required.'); return; }
   const r = await fetch(API+'/api/admin/banners', {
     method:'POST', headers: authHdr(), body: JSON.stringify({ title, message, type, targetPlan, dismissible })
   });
   const d = await r.json();
-  showBannerResult(r.ok, r.ok ? 'Banner sent successfully!' : d.message);
-  if (r.ok) { document.getElementById('bannerTitle').value = ''; document.getElementById('bannerMsg').value = ''; loadBanners(); }
-}
-
-function showBannerResult(ok, msg) {
-  document.getElementById('bannerErr').style.display = ok ? 'none' : 'block';
-  document.getElementById('bannerSuc').style.display = ok ? 'block' : 'none';
-  document.getElementById(ok?'bannerSuc':'bannerErr').textContent = msg;
+  showResult('bannerErr','bannerSuc', r.ok, r.ok ? 'Banner sent!' : d.message);
+  if (r.ok) { document.getElementById('bannerTitle').value=''; document.getElementById('bannerMsg').value=''; loadBanners(); }
 }
 
 async function loadBanners() {
   const r = await fetch(API+'/api/admin/banners', { headers: authHdr() });
   const banners = await r.json();
   const typeTag = { info:'tag-blue', warning:'tag-yellow', success:'tag-green', danger:'tag-red' };
-
   document.getElementById('bannersBody').innerHTML = (banners||[]).map(b => `
     <tr>
       <td style="font-weight:500">${b.title}</td>
@@ -532,35 +732,65 @@ async function deleteBanner(id) {
   loadBanners();
 }
 
+// ── SETTINGS ─────────────────────────────────────────────────────
+async function loadSettings() {
+  const user = JSON.parse(localStorage.getItem('intelUser')||'{}');
+  document.getElementById('adminEmailDisplay').textContent = user.email || '—';
+
+  // Ping relay
+  try {
+    const r = await fetch(API+'/api/admin/relay-status', { headers: authHdr() });
+    const d = await r.json();
+    const el = document.getElementById('relayStatus');
+    if (d.status === 'online' || d.ok) {
+      el.className = 'tag tag-green'; el.textContent = 'Online';
+    } else {
+      el.className = 'tag tag-red'; el.textContent = 'Offline';
+    }
+  } catch {
+    document.getElementById('relayStatus').className = 'tag tag-red';
+    document.getElementById('relayStatus').textContent = 'Offline';
+  }
+}
+
+async function saveRelaySetting() {
+  const key = document.getElementById('relayKeyInput').value.trim();
+  if (!key) { showResult('relaySettingErr','relaySettingSuc',false,'Enter a relay API key.'); return; }
+  const r = await fetch(API+'/api/admin/settings', {
+    method:'POST', headers: authHdr(), body: JSON.stringify({ relayApiKey: key })
+  });
+  const d = await r.json();
+  showResult('relaySettingErr','relaySettingSuc', r.ok, r.ok ? 'Relay API key saved.' : (d.message||'Failed.'));
+}
+
 // ── HELPERS ───────────────────────────────────────────────────────
 function renderPagination(containerId, currentPage, totalPages, fn) {
   const c = document.getElementById(containerId);
-  if (!c || totalPages <= 1) { if (c) c.innerHTML = ''; return; }
+  if (!c || totalPages <= 1) { if(c) c.innerHTML=''; return; }
   let html = '';
   for (let i=1; i<=totalPages; i++) html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="${fn}(${i})">${i}</button>`;
   c.innerHTML = html;
 }
 
-function debounce(fn, ms) {
-  let t;
-  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-}
+function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = setTimeout(()=>fn(...args), ms); }; }
 
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   if (btn) btn.classList.add('active');
-  const titles = { overview:'Admin Overview', users:'User Management', searches:'Search Logs', payments:'Payments', banners:'Broadcast Banners' };
+  const titles = { overview:'Admin Overview', users:'User Management', searches:'Search Logs', payments:'Payments', plans:'Plans & Credits', banners:'Broadcast Banners', settings:'Settings' };
   document.getElementById('pageTitle').textContent = titles[tab]||tab;
-  if (tab === 'overview') loadOverview();
-  else if (tab === 'users') loadUsers(1);
-  else if (tab === 'searches') loadSearchLogs(1);
-  else if (tab === 'payments') loadPayments();
-  else if (tab === 'banners') loadBanners();
+  if (tab==='overview') loadOverview();
+  else if (tab==='users') loadUsers(1);
+  else if (tab==='searches') loadSearchLogs(1);
+  else if (tab==='payments') loadPayments();
+  else if (tab==='plans') loadPlans();
+  else if (tab==='banners') loadBanners();
+  else if (tab==='settings') loadSettings();
 }
 
-function logout() { localStorage.removeItem('intelToken'); localStorage.removeItem('intelUser'); window.location.href = 'login.html'; }
+function logout() { localStorage.removeItem('intelToken'); localStorage.removeItem('intelUser'); window.location.href='login.html'; }
 
 loadOverview();
 </script>
