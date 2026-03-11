@@ -8,7 +8,7 @@ const router  = express.Router();
 
 const signToken = id => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
-// POST /api/auth/register — send OTP
+// POST /api/auth/register — instant signup, no email verification
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, referralCode } = req.body;
@@ -18,43 +18,32 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters.' });
 
     const exists = await User.findOne({ email: email.toLowerCase() });
-    if (exists && exists.isVerified)
+    if (exists)
       return res.status(409).json({ message: 'Email already registered. Please login.' });
 
-    // Delete old unverified account
-    if (exists && !exists.isVerified) await User.deleteOne({ email: email.toLowerCase() });
-
-    // Create unverified user
+    // Create user as instantly verified
     const user = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
       referredBy: referralCode || null,
-      isVerified: false,
+      isVerified: true,
     });
 
-    // Generate and send OTP
-    const otp = generateOTP();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-    await OTP.deleteMany({ email: email.toLowerCase() });
-    await OTP.create({ email: email.toLowerCase(), otp, type: 'register', expiresAt });
-
-    try {
-      await sendOTPEmail(email, otp, name);
-    } catch (emailErr) {
-      console.error('[Register] Email send failed:', emailErr.message);
-      // Clean up the OTP and unverified user so they can retry cleanly
-      await OTP.deleteMany({ email: email.toLowerCase() });
-      await User.deleteOne({ email: email.toLowerCase(), isVerified: false });
-      return res.status(500).json({
-        message: 'Could not send verification email. ' +
-          (emailErr.message.includes('configured')
-            ? 'Email service is not set up on this server.'
-            : 'Please check your email address and try again.'),
-      });
+    // Referral bonus
+    if (referralCode) {
+      await User.findOneAndUpdate(
+        { referralCode },
+        { $inc: { credits: 3 } }
+      );
     }
 
-    res.status(201).json({ message: 'OTP sent to your email. Please verify to continue.' });
+    const token = signToken(user._id);
+    res.status(201).json({
+      message: 'Account created successfully. Welcome to IntelGrid!',
+      token,
+      user: formatUser(user),
+    });
   } catch (err) {
     console.error('[Register]', err.message);
     res.status(500).json({ message: 'Registration failed. Please try again.' });
@@ -243,5 +232,84 @@ function formatUser(u) {
     isVerified: u.isVerified, createdAt: u.createdAt, lastLogin: u.lastLogin,
   };
 }
+
+// POST /api/auth/google
+// Frontend sends the Google ID token, we verify it with Google and sign in/up the user
+router.post('/google', async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) return res.status(400).json({ message: 'Google credential required.' });
+
+    // Verify token with Google
+    const https = require('https');
+    const googleData = await new Promise((resolve, reject) => {
+      const reqG = https.get(
+        `https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`,
+        (r) => {
+          let d = '';
+          r.on('data', c => d += c);
+          r.on('end', () => {
+            try {
+              const parsed = JSON.parse(d);
+              if (r.statusCode !== 200) reject(new Error(parsed.error_description || 'Invalid token'));
+              else resolve(parsed);
+            } catch { reject(new Error('Failed to parse Google response')); }
+          });
+        }
+      );
+      reqG.on('error', reject);
+      reqG.setTimeout(10000, () => { reqG.destroy(); reject(new Error('Google verification timed out')); });
+    });
+
+    // Validate audience matches our client ID
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (clientId && googleData.aud !== clientId) {
+      return res.status(401).json({ message: 'Token audience mismatch.' });
+    }
+
+    const { email, name, picture, sub: googleId } = googleData;
+    if (!email) return res.status(400).json({ message: 'Could not get email from Google.' });
+
+    // Find or create user
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    if (user) {
+      // Existing user — update google info if not set
+      if (!user.googleId) {
+        user.googleId   = googleId;
+        user.isVerified = true;
+        if (picture && !user.avatar) user.avatar = picture;
+        await user.save();
+      }
+      if (user.isBanned)  return res.status(403).json({ message: `Account banned: ${user.banReason || 'Policy violation'}` });
+      if (!user.isActive) return res.status(403).json({ message: 'Account deactivated. Contact support.' });
+    } else {
+      // New user — create account instantly
+      user = await User.create({
+        name:       name || email.split('@')[0],
+        email:      email.toLowerCase(),
+        password:   googleId + process.env.JWT_SECRET, // random unguessable password
+        googleId,
+        avatar:     picture || null,
+        isVerified: true,
+      });
+    }
+
+    await User.findByIdAndUpdate(user._id, {
+      $set: { lastLogin: new Date() },
+      $inc: { loginCount: 1 },
+    });
+
+    const token = signToken(user._id);
+    res.json({
+      message: 'Signed in with Google.',
+      token,
+      user: formatUser(user),
+    });
+  } catch (err) {
+    console.error('[GoogleAuth]', err.message);
+    res.status(500).json({ message: 'Google sign-in failed: ' + err.message });
+  }
+});
 
 module.exports = router;
