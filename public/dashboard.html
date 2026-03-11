@@ -535,8 +535,19 @@ function stripFoot(raw){
   return raw
     .replace(/⚡\s*\*?\*?Powered by[^\n]*/gi,'').replace(/🔐\s*\*?\*?Developed by[^\n]*/gi,'')
     .replace(/⚠️\s*\*?\*?Confidential[^\n]*/gi,'').replace(/🕒\s*\d{1,2}:\d{2}[^\n]*/gi,'')
-    .replace(/[📱🔍📊][^\n]*\n/g,'').replace(/[-─=]{4,}/g,'')
+    .replace(/[📱🔍📊⭐💎🌟][^\n]*\n?/g,'').replace(/[-─=╔╗╚╝║]{3,}[^\n]*/g,'')
     .replace(/^\s*\n/gm,'').trim();
+}
+
+// Extract JSON array/object from anywhere inside raw text
+function extractJSON(raw){
+  if(!raw)return null;
+  // Try to find [...] or {...}
+  const arrM=raw.match(/(\[[\s\S]*?\])/);
+  if(arrM){try{const p=JSON.parse(arrM[1]);if(Array.isArray(p)&&p.length)return p;}catch(e){}}
+  const objM=raw.match(/(\{[\s\S]*?\})/);
+  if(objM){try{const p=JSON.parse(objM[1]);if(typeof p==='object'&&p!==null)return [p];}catch(e){}}
+  return null;
 }
 
 function parseKV(text){
@@ -549,12 +560,64 @@ function parseKV(text){
 }
 
 function secHdr(t){return `<div class="rshdr"><span class="rstitle">${xe(t)}</span><div class="rsline"></div></div>`;}
-function fcard(l,v,c=''){return `<div class="rf"><div class="rl">${xe(l)}</div><div class="rv ${c}">${xe(v)}</div></div>`;}
+function fcard(l,v,c=''){return `<div class="rf"><div class="rl">${xe(l)}</div><div class="rv ${c}">${xe(String(v||'—'))}</div></div>`;}
+
+// Render an array of JSON record objects as cards
+function renderJSONRecords(records, type){
+  // Deduplicate by stringified content
+  const seen=new Set(), unique=[];
+  records.forEach(r=>{const k=JSON.stringify(r);if(!seen.has(k)){seen.add(k);unique.push(r);}});
+
+  const NAME_KEYS=['NAME','name','SUBSCRIBER','OWNER','subscriber','owner'];
+  const ADDR_KEYS=['ADDRESS','address','addr','ADDR'];
+  const UID_KEYS=['AADHAR','UID','id','EMAIL','email','MOBILE','mobile'];
+
+  let html='';
+  unique.forEach((rec,i)=>{
+    const label=unique.length>1?`Record #${i+1}`:'Primary Record';
+    html+=`<div class="rs">${secHdr(label)}<div class="rgrid">`;
+    Object.entries(rec).forEach(([k,v])=>{
+      if(v===null||v===undefined||v==='null'||String(v).trim()==='')return;
+      const ku=k.toUpperCase();
+      let cls='';
+      if(NAME_KEYS.some(x=>ku===x.toUpperCase()))cls='vn';
+      else if(ADDR_KEYS.some(x=>ku===x.toUpperCase()))cls='va';
+      else if(UID_KEYS.some(x=>ku===x.toUpperCase()))cls='vu';
+      // Clean address: replace ! with comma-space
+      let val=String(v).trim().replace(/!/g,', ');
+      html+=fcard(k,val,cls);
+    });
+    html+='</div></div>';
+  });
+  return html;
+}
 
 function renderResult(data,type,query){
   if(!data)return '<div class="rraw">No data returned.</div>';
   const raw=data.raw_content||data.raw_text||(typeof data==='string'?data:'');
   const clean=stripFoot(raw);
+
+  // ── Priority 1: JSON embedded in raw text ──────────────────────────────
+  const jsonRecs=extractJSON(raw);
+  if(jsonRecs&&jsonRecs.length){
+    // Also check for KEY:VALUE lines above JSON for extra context
+    const kvAbove=parseKV(clean.split('[')[0]||'');
+    let html='';
+    if(Object.keys(kvAbove).length>1){
+      html+=`<div class="rs">${secHdr('Query Info')}<div class="rgrid">`;
+      Object.entries(kvAbove).forEach(([k,v])=>html+=fcard(k,v));
+      html+='</div></div>';
+    }
+    html+=renderJSONRecords(jsonRecs,type);
+    return html||`<div class="rraw">${xe(clean)}</div>`;
+  }
+
+  // ── Priority 2: parsed_data object on the data payload ────────────────
+  if(data.parsed_data&&Object.keys(data.parsed_data).length){
+    return renderJSONRecords([data.parsed_data],type);
+  }
+
+  // ── Priority 3: type-specific text parsers ────────────────────────────
   if(type==='vehicle')return renderVehicle(clean);
   if(type==='family')return renderFamily(clean);
   if(type==='phone'||type==='aadhar')return renderPhone(clean);
