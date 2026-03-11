@@ -432,7 +432,7 @@ function ah(){return{'Content-Type':'application/json','Authorization':'Bearer '
 
 async function init(){
   try{const r=await fetch(API+'/api/user/profile',{headers:ah()});if(r.status===401){logout();return;}user=await r.json();localStorage.setItem('intelUser',JSON.stringify(user));}catch(e){}
-  updateUI();loadBanners();buildGrid();loadBillingPacks();
+  updateUI();loadBanners();loadEnabledTypes();loadBillingPacks();
 }
 function updateUI(){
   const pl=(user.plan||'free'),plab=pl.charAt(0).toUpperCase()+pl.slice(1);
@@ -458,6 +458,19 @@ function updateUI(){
   document.getElementById('plExp').textContent=(user.planExpiresAt&&pl!=='free')?'Expires '+new Date(user.planExpiresAt).toLocaleDateString('en-IN'):'No subscription';
 }
 let curFilt='all';
+async function loadEnabledTypes(){
+  try{
+    const r=await fetch(API+'/api/search/types',{headers:ah()});
+    const d=await r.json();
+    // Merge API-enabled list with local TYPES for icons/hints
+    Object.keys(TYPES).forEach(k=>{
+      if(!d[k]) delete TYPES[k]; // remove disabled
+      else if(d[k].credits) TYPES[k].cr=d[k].credits; // sync credit cost
+    });
+  }catch(e){}
+  buildGrid('all');
+}
+
 function buildGrid(f){
   f=f||curFilt||'all';
   document.getElementById('typeGrid').innerHTML=Object.entries(TYPES)
@@ -511,16 +524,24 @@ async function runSearch(){
       const e=document.getElementById('errbox');
       e.innerHTML=d.message||'Search failed.';
       if(d.code==='NO_CREDITS')e.innerHTML+=' <a href="#" onclick="switchTab(\'billing\',null)" style="color:var(--accent)">Buy credits →</a>';
+      if(d.code==='COMMAND_DISABLED')e.innerHTML='⛔ <strong>Module disabled</strong> — This search module has been disabled by admin.';
       e.style.display='block';return;
     }
     const t=TYPES[selType];
     document.getElementById('rico').textContent=t?t.ico:'📊';
     document.getElementById('rtitle').textContent=(t?.name||selType)+' — '+q;
-    document.getElementById('rmeta').textContent='Credits used: '+(d.creditsUsed||0)+' · '+new Date().toLocaleTimeString('en-IN');
-    document.getElementById('rcontent').innerHTML=renderResult(d.data,selType,q);
+    // Show green "no deduction" label if result was empty
+    const crLabel=d.noDeduction
+      ?'<span style="color:var(--green);font-weight:600">✓ No credits deducted — no result found</span>'
+      :'Credits used: <strong>'+(d.creditsUsed||0)+'</strong>';
+    document.getElementById('rmeta').innerHTML=crLabel+' &nbsp;·&nbsp; '+new Date().toLocaleTimeString('en-IN');
+    document.getElementById('rcontent').innerHTML=d.empty
+      ?`<div style="text-align:center;padding:36px 16px"><div style="font-size:2.5rem;margin-bottom:10px">🔍</div><div style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:6px">No results found</div><div style="font-size:.82rem;color:var(--text2);line-height:1.7">No records were found for <strong>${xe(q)}</strong>.<br><span style="color:var(--green)">✓ Your credits were not deducted.</span></div></div>`
+      :renderResult(d.data,selType,q);
     const rb=document.getElementById('rbox');rb.style.display='block';
     setTimeout(()=>rb.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
-    if(d.creditsUsed)user.credits=Math.max(0,(user.credits||0)-d.creditsUsed);
+    // Only deduct from local count if credits were actually used
+    if(!d.noDeduction&&d.creditsUsed)user.credits=Math.max(0,(user.credits||0)-d.creditsUsed);
     user.totalSearches=(user.totalSearches||0)+1;user.dailySearches=(user.dailySearches||0)+1;updateUI();
   }catch(e){stopAnim();document.getElementById('sbtn').disabled=false;document.getElementById('errbox').textContent='Network error.';document.getElementById('errbox').style.display='block';}
 }
