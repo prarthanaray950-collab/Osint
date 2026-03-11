@@ -150,3 +150,20 @@ router.delete('/banners/:id', async (req, res) => {
 
 // ── ACTIVE BANNERS (for users) ────────────────────────────────────
 module.exports = router;
+
+// ── RELAY STATUS ──────────────────────────────────────────────────
+router.get('/relay-status', async (req, res) => {
+  const { relayStatus } = require('../utils/relay');
+  const status = await relayStatus();
+  res.json(status);
+});
+
+// ── SETTINGS (relay key update) ───────────────────────────────────
+router.post('/settings', async (req, res) => {
+  const { relayApiKey } = req.body;
+  if (relayApiKey) {
+    process.env.RELAY_API_KEY = relayApiKey;
+    return res.json({ message: 'Relay API key updated for this session. Add it to your .env to persist.' });
+  }
+  res.status(400).json({ message: 'Nothing to update.' });
+});
