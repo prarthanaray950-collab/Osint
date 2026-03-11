@@ -170,6 +170,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="nav-section-label" style="margin-top:8px">Management</div>
     <button class="nav-item" onclick="switchTab('plans',this)"><span class="nav-icon">📦</span> Plans & Credits</button>
     <button class="nav-item" onclick="switchTab('banners',this)"><span class="nav-icon">📢</span> Banners</button>
+    <button class="nav-item" onclick="switchTab('commands',this)"><span class="nav-icon">🔌</span> Commands</button>
     <button class="nav-item" onclick="switchTab('settings',this)"><span class="nav-icon">⚙️</span> Settings</button>
     <div class="nav-section-label" style="margin-top:8px">Navigation</div>
     <button class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon">↩️</span> User Dashboard</button>
@@ -363,8 +364,44 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
     </div>
 
+
+    <!-- COMMANDS -->
+    <div class="tab-panel" id="tab-commands">
+      <div class="settings-section" style="margin-bottom:20px">
+        <h3>🔌 Search Module Control</h3>
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:18px">Enable or disable search modules. Disabled modules are hidden from users and cannot be searched. You can also change the credit cost per module.</p>
+        <div id="commandsList"><div style="color:var(--muted);font-size:.85rem">Loading…</div></div>
+      </div>
+    </div>
+
     <!-- SETTINGS -->
     <div class="tab-panel" id="tab-settings">
+      <!-- Signup Credits Config -->
+      <div class="settings-section" style="margin-bottom:20px">
+        <h3>🎁 Signup & Referral Credits</h3>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Credits on Signup</div>
+            <div class="setting-desc">How many credits new users receive when they register</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="number" id="signupCrInput" class="setting-input" style="width:100px" min="0" value="1"/>
+            <button class="btn-sm btn-blue" style="height:36px;padding:0 14px" onclick="saveSignupConfig()">Save</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Referral Bonus Credits</div>
+            <div class="setting-desc">Credits given to referrer when someone uses their code</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="number" id="referralCrInput" class="setting-input" style="width:100px" min="0" value="3"/>
+          </div>
+        </div>
+        <div class="suc" id="signupCrSuc"></div>
+        <div class="err" id="signupCrErr"></div>
+      </div>
+
       <div class="settings-section">
         <h3>🔑 Relay API Configuration</h3>
         <div class="setting-row">
@@ -472,7 +509,7 @@ function authHdr() { return { 'Content-Type':'application/json', 'Authorization'
 let modalUserId = null;
 
 const PLAN_INFO = {
-  free:  { label:'Free',  price:'₹0',    color:'tag-muted',  features:['1 credits on signup','Pay-per-search','No daily limit'] },
+  free:  { label:'Free',  price:'₹0',    color:'tag-muted',  features:['5 credits on signup','Pay-per-search','No daily limit'] },
   basic: { label:'Basic', price:'₹299',  color:'tag-blue',   features:['20 searches/day','All 14 modules','30-day validity'] },
   pro:   { label:'Pro',   price:'₹599',  color:'tag-purple', features:['50 searches/day','All 14 modules','Priority support'] },
   elite: { label:'Elite', price:'₹999',  color:'tag-yellow', features:['Unlimited searches','All 14 modules','24/7 support'] },
@@ -921,7 +958,87 @@ async function deleteBanner(id) {
 }
 
 // ── SETTINGS ─────────────────────────────────────────────────────
+// ── COMMANDS ──────────────────────────────────────────────────────
+
+async function loadCommands() {
+  try {
+    const r = await fetch(API+'/api/admin/commands', { headers: authHdr() });
+    const cmds = await r.json();
+    const ICONS = { phone:'📱', family:'👨‍👩‍👧‍👦', aadhar:'🆔', vehicle:'🚗', telegram:'✈️', imei:'📟', gst:'🏢', instagram:'📸', ip:'🌐', ifsc:'🏦', email:'📧', upi:'💳', pakistan:'🌏', leak:'🚀' };
+    document.getElementById('commandsList').innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">
+        ${cmds.map(c => `
+          <div style="background:var(--bg3);border:1px solid ${c.enabled?'rgba(59,130,246,.3)':'var(--border)'};border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;opacity:${c.enabled?1:.55};transition:all .2s">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0">
+              <span style="font-size:1.3rem;flex-shrink:0">${ICONS[c.key]||'🔍'}</span>
+              <div>
+                <div style="font-size:.87rem;font-weight:600;color:var(--text)">${c.name}</div>
+                <div style="font-size:.7rem;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace">${c.key}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <div style="display:flex;align-items:center;gap:4px">
+                <input type="number" value="${c.credits}" min="0" style="width:48px;height:28px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.78rem;text-align:center;outline:none;padding:0 4px" onchange="updateCmdCredits('${c.key}',this.value,this)" title="Credit cost"/>
+                <span style="font-size:.65rem;color:var(--muted)">cr</span>
+              </div>
+              <button onclick="toggleCommand('${c.key}',this)" class="btn-sm ${c.enabled?'btn-green':'btn-red'}" style="height:28px;min-width:62px;font-size:.72rem">
+                ${c.enabled?'✓ On':'✗ Off'}
+              </button>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  } catch(e) { document.getElementById('commandsList').innerHTML = '<div style="color:var(--red)">Failed to load commands.</div>'; }
+}
+
+async function toggleCommand(key, btn) {
+  btn.disabled = true;
+  try {
+    const r = await fetch(API+'/api/admin/commands/'+key+'/toggle', { method:'POST', headers: authHdr() });
+    const d = await r.json();
+    if (r.ok) loadCommands();
+    else { alert(d.message); btn.disabled = false; }
+  } catch { btn.disabled = false; }
+}
+
+async function updateCmdCredits(key, value, inp) {
+  const credits = parseInt(value);
+  if (isNaN(credits) || credits < 0) { inp.style.borderColor='var(--red)'; return; }
+  inp.style.borderColor = '';
+  try {
+    const r = await fetch(API+'/api/admin/commands/'+key+'/credits', {
+      method:'POST', headers: authHdr(), body: JSON.stringify({ credits })
+    });
+    if (r.ok) { inp.style.borderColor='var(--green)'; setTimeout(()=>inp.style.borderColor='',1200); }
+    else { const d=await r.json(); alert(d.message); }
+  } catch {}
+}
+
+// ── SIGNUP CONFIG ─────────────────────────────────────────────────
+
+async function loadSignupConfig() {
+  try {
+    const r = await fetch(API+'/api/admin/config', { headers: authHdr() });
+    const d = await r.json();
+    if (document.getElementById('signupCrInput'))  document.getElementById('signupCrInput').value  = d.signupCredits  ?? 1;
+    if (document.getElementById('referralCrInput')) document.getElementById('referralCrInput').value = d.referralCredits ?? 3;
+  } catch {}
+}
+
+async function saveSignupConfig() {
+  const sc = parseInt(document.getElementById('signupCrInput').value);
+  const rc = parseInt(document.getElementById('referralCrInput').value);
+  if (isNaN(sc)||sc<0||isNaN(rc)||rc<0) {
+    showResult('signupCrErr','signupCrSuc',false,'Enter valid non-negative numbers.');return;
+  }
+  const r = await fetch(API+'/api/admin/config', {
+    method:'POST', headers: authHdr(), body: JSON.stringify({ signupCredits:sc, referralCredits:rc })
+  });
+  const d = await r.json();
+  showResult('signupCrErr','signupCrSuc', r.ok, r.ok ? `Saved! New signups get ${sc} credit${sc!==1?'s':''}, referrers get ${rc}.` : d.message);
+}
+
 async function loadSettings() {
+  loadSignupConfig();
   const user = JSON.parse(localStorage.getItem('intelUser')||'{}');
   document.getElementById('adminEmailDisplay').textContent = user.email || '—';
 
@@ -967,13 +1084,14 @@ function switchTab(tab, btn) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   if (btn) btn.classList.add('active');
-  const titles = { overview:'Admin Overview', users:'User Management', searches:'Search Logs', payments:'Payments', plans:'Plans & Credits', banners:'Broadcast Banners', settings:'Settings' };
+  const titles = { overview:'Admin Overview', users:'User Management', searches:'Search Logs', payments:'Payments', plans:'Plans & Credits', banners:'Broadcast Banners', commands:'Search Commands', settings:'Settings' };
   document.getElementById('pageTitle').textContent = titles[tab]||tab;
   if (tab==='overview') loadOverview();
   else if (tab==='users') loadUsers(1);
   else if (tab==='searches') loadSearchLogs(1);
   else if (tab==='payments') loadPayments();
   else if (tab==='plans') loadPlans();
+  else if (tab==='commands') loadCommands();
   else if (tab==='banners') loadBanners();
   else if (tab==='settings') loadSettings();
 }
