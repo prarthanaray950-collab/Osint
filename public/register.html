@@ -79,10 +79,26 @@ h1{font-size:1.6rem;font-weight:800;margin-bottom:8px;text-align:center;letter-s
 const API = '';
 const GOOGLE_CLIENT_ID = '820086258635-ir6s0i0ms2pm55g0h0jm2pkf2cr21r9r.apps.googleusercontent.com';
 
-if (localStorage.getItem('intelToken')) window.location.href = 'dashboard.html';
+// Redirect already-logged-in users — only if both token AND user data exist
+(function() {
+  const token = localStorage.getItem('intelToken');
+  const user  = localStorage.getItem('intelUser');
+  if (token && user) {
+    try {
+      const u = JSON.parse(user);
+      window.location.replace(u.role === 'admin' ? 'admin.html' : 'dashboard.html');
+    } catch(e) {
+      localStorage.removeItem('intelToken');
+      localStorage.removeItem('intelUser');
+    }
+  }
+})();
 
 // Pre-fill referral code from URL ?ref=XXXXX
 const refParam = new URLSearchParams(location.search).get('ref');
+
+// Guard: prevent handleGoogleCredential from firing more than once per page load
+let _googleSignInHandled = false;
 
 function initGoogle() {
   google.accounts.id.initialize({
@@ -109,6 +125,8 @@ function setLoading(on) {
 function googleSignIn() {
   if (typeof google === 'undefined') { showErr('Google Sign-In script failed to load.'); return; }
   hideErr();
+  // Reset guard on each fresh button click
+  _googleSignInHandled = false;
   google.accounts.id.prompt(notification => {
     if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
       google.accounts.id.renderButton(document.getElementById('googleBtn'), {
@@ -120,6 +138,10 @@ function googleSignIn() {
 }
 
 async function handleGoogleCredential(response) {
+  // Prevent double-invocation (One Tap + renderButton can both resolve)
+  if (_googleSignInHandled) return;
+  _googleSignInHandled = true;
+
   setLoading(true);
   hideErr();
   try {
@@ -129,13 +151,19 @@ async function handleGoogleCredential(response) {
       body: JSON.stringify({ credential: response.credential, referralCode: refParam || null }),
     });
     const d = await r.json();
-    if (!r.ok) { showErr(d.message || 'Sign-up failed. Try again.'); setLoading(false); return; }
+    if (!r.ok) {
+      showErr(d.message || 'Sign-up failed. Try again.');
+      setLoading(false);
+      _googleSignInHandled = false; // Allow retry on error
+      return;
+    }
     localStorage.setItem('intelToken', d.token);
     localStorage.setItem('intelUser', JSON.stringify(d.user));
-    window.location.href = 'dashboard.html';
+    window.location.replace('dashboard.html');
   } catch(e) {
     showErr('Network error. Please try again.');
     setLoading(false);
+    _googleSignInHandled = false; // Allow retry on error
   }
 }
 
