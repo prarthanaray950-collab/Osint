@@ -79,7 +79,25 @@ h1{font-size:1.6rem;font-weight:800;margin-bottom:8px;text-align:center;letter-s
 const API = '';
 const GOOGLE_CLIENT_ID = '820086258635-ir6s0i0ms2pm55g0h0jm2pkf2cr21r9r.apps.googleusercontent.com';
 
-if (localStorage.getItem('intelToken')) window.location.href = 'dashboard.html';
+// Redirect already-logged-in users — only if token AND user data exist (prevents stale-token loop)
+(function() {
+  const token = localStorage.getItem('intelToken');
+  const user  = localStorage.getItem('intelUser');
+  if (token && user) {
+    try {
+      const u = JSON.parse(user);
+      window.location.replace(u.role === 'admin' ? 'admin.html' : 'dashboard.html');
+    } catch(e) {
+      // Corrupt user data — clear it and stay on login
+      localStorage.removeItem('intelToken');
+      localStorage.removeItem('intelUser');
+    }
+  }
+})();
+
+// Guard: prevent handleGoogleCredential from firing more than once per page load
+// (Google GSI can invoke the callback twice when both One Tap and renderButton resolve)
+let _googleSignInHandled = false;
 
 function initGoogle() {
   google.accounts.id.initialize({
@@ -108,8 +126,10 @@ function googleSignIn() {
     return;
   }
   hideErr();
+  // Reset guard on each fresh button click
+  _googleSignInHandled = false;
   google.accounts.id.prompt(notification => {
-    // If One Tap is blocked (browser policy etc), fall back to redirect flow
+    // If One Tap is blocked (browser policy etc), fall back to renderButton click
     if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
       google.accounts.id.renderButton(document.getElementById('googleBtn'), {
         theme: 'outline', size: 'large', width: 328,
@@ -120,6 +140,10 @@ function googleSignIn() {
 }
 
 async function handleGoogleCredential(response) {
+  // Prevent double-invocation (One Tap + renderButton can both resolve)
+  if (_googleSignInHandled) return;
+  _googleSignInHandled = true;
+
   setLoading(true);
   hideErr();
   try {
@@ -129,13 +153,19 @@ async function handleGoogleCredential(response) {
       body: JSON.stringify({ credential: response.credential }),
     });
     const d = await r.json();
-    if (!r.ok) { showErr(d.message || 'Sign-in failed. Try again.'); setLoading(false); return; }
+    if (!r.ok) {
+      showErr(d.message || 'Sign-in failed. Try again.');
+      setLoading(false);
+      _googleSignInHandled = false; // Allow retry on error
+      return;
+    }
     localStorage.setItem('intelToken', d.token);
     localStorage.setItem('intelUser', JSON.stringify(d.user));
-    window.location.href = d.user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    window.location.replace(d.user.role === 'admin' ? 'admin.html' : 'dashboard.html');
   } catch(e) {
     showErr('Network error. Please try again.');
     setLoading(false);
+    _googleSignInHandled = false; // Allow retry on error
   }
 }
 
