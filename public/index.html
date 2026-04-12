@@ -1,505 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>IntelGrid — OSINT Intelligence Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Login — IntelGrid</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --bg:#080C17; --bg2:#0C1120; --bg3:#101828;
-  --border:#1A2540; --border2:#243050;
-  --accent:#3B82F6; --accent2:#06B6D4;
-  --green:#10B981; --red:#EF4444; --yellow:#F59E0B;
-  --text:#E8EDF5; --muted:#566A8A; --muted2:#8A9BB5;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1}
-
-/* ── NAV ─────────────────────────────────────────────── */
-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,23,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;padding:0 28px;justify-content:space-between;gap:12px}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
-.nav-logo-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:500;color:#fff;flex-shrink:0;box-shadow:0 0 14px rgba(59,130,246,0.3)}
-.nav-brand{font-size:1rem;font-weight:800;color:var(--text);letter-spacing:2px}
-.nav-center{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:0 12px;flex:1;max-width:400px;margin:0 auto}
-.nav-search-icon{color:var(--muted);flex-shrink:0}
-.nav-search-input{flex:1;background:none;border:none;outline:none;font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--text);padding:9px 0}
-.nav-search-input::placeholder{color:var(--muted)}
-.nav-links{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.nav-text{font-size:0.8rem;color:var(--muted2);text-decoration:none;transition:color 0.2s;font-weight:500;padding:0 6px;white-space:nowrap}
-.nav-text:hover{color:var(--text)}
-.btn-nav{height:36px;padding:0 18px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap}
-.btn-nav:hover{background:#2563EB;transform:translateY(-1px)}
-.btn-nav-ghost{background:transparent;border:1px solid var(--border2);color:var(--text)}
-.btn-nav-ghost:hover{border-color:var(--accent);background:rgba(59,130,246,0.08);transform:translateY(-1px)}
-.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:none;border:1px solid var(--border);border-radius:7px}
-.hamburger span{display:block;width:18px;height:2px;background:var(--text);border-radius:2px;transition:all 0.3s}
-.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
-.hamburger.open span:nth-child(2){opacity:0}
-.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 20px 20px;z-index:190;flex-direction:column;gap:2px;animation:slideDown 0.2s ease}
-.mobile-menu.open{display:flex}
-@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.mobile-search-bar{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:0 12px;margin-bottom:12px}
-.mobile-search-bar input{flex:1;background:none;border:none;outline:none;font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--text);padding:11px 0}
-.mobile-search-bar input::placeholder{color:var(--muted)}
-.mobile-nav-links{display:flex;flex-direction:column;gap:2px}
-.mobile-nav-links a{display:flex;align-items:center;padding:12px 4px;font-size:0.9rem;font-weight:500;color:var(--muted2);text-decoration:none;border-bottom:1px solid var(--border);transition:color 0.2s}
-.mobile-nav-links a:last-child{border-bottom:none}
-.mobile-nav-links a:hover{color:var(--text)}
-.mobile-menu-btns{display:flex;gap:10px;margin-top:14px}
-.mobile-menu-btns a{flex:1;height:44px;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:0.88rem;font-weight:600;text-decoration:none;transition:all 0.2s}
-.mobile-btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text)}
-.mobile-btn-ghost:hover{border-color:var(--accent)}
-.mobile-btn-primary{background:var(--accent);color:#fff}
-.mobile-btn-primary:hover{background:#2563EB}
-
-/* ── HERO ─────────────────────────────────────────────── */
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:100px 20px 60px;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(26,37,64,0.35) 1px,transparent 1px),linear-gradient(90deg,rgba(26,37,64,0.35) 1px,transparent 1px);background-size:48px 48px}
-.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.08),transparent 68%);top:5%;left:50%;transform:translateX(-50%);pointer-events:none}
-.hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;max-width:780px;width:100%}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:20px;padding:6px 14px;font-size:0.68rem;font-weight:600;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px;animation:fadeUp 0.5s ease both}
-.hero-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{opacity:0.6;box-shadow:0 0 0 5px rgba(16,185,129,0)}}
-.hero h1{font-size:clamp(2rem,6vw,3.8rem);font-weight:800;line-height:1.08;margin-bottom:20px;letter-spacing:-0.02em;animation:fadeUp 0.5s 0.08s ease both}
-.hero h1 .grad{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:clamp(0.875rem,2vw,1.05rem);color:var(--muted2);font-weight:400;line-height:1.7;max-width:520px;margin:0 auto 36px;animation:fadeUp 0.5s 0.16s ease both}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.5s 0.24s ease both;margin-bottom:48px}
-.btn-primary{height:48px;padding:0 28px;background:linear-gradient(135deg,var(--accent),#2563EB);color:#fff;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;box-shadow:0 4px 20px rgba(59,130,246,0.25)}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(59,130,246,0.4)}
-.btn-outline-hero{height:48px;padding:0 28px;background:transparent;color:var(--text);border:1px solid var(--border2);border-radius:9px;font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s}
-.btn-outline-hero:hover{border-color:var(--accent);background:rgba(59,130,246,0.07)}
+:root{--bg:#080C17;--bg2:#0C1120;--border:#1A2540;--border2:#243050;--accent:#3B82F6;--accent2:#06B6D4;--green:#10B981;--red:#EF4444;--text:#E8EDF5;--muted:#566A8A;--muted2:#8A9BB5}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background-image:linear-gradient(rgba(26,37,64,0.3) 1px,transparent 1px),linear-gradient(90deg,rgba(26,37,64,0.3) 1px,transparent 1px);background-size:48px 48px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:44px 36px;max-width:400px;width:100%;animation:fadeUp 0.5s ease;box-shadow:0 24px 80px rgba(0,0,0,0.4)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:36px;justify-content:center}
+.logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:500;color:#fff;box-shadow:0 0 14px rgba(59,130,246,0.3)}
+.logo-text{font-size:1rem;font-weight:800;letter-spacing:2px}
+h1{font-size:1.6rem;font-weight:800;margin-bottom:8px;text-align:center;letter-spacing:-0.01em}
+.sub{font-size:0.82rem;color:var(--muted2);text-align:center;margin-bottom:36px;line-height:1.65}
 
-/* ── DEMO WIDGET ──────────────────────────────────────── */
-.demo-widget{width:100%;max-width:620px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.03);animation:fadeUp 0.6s 0.36s ease both}
-.demo-tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);background:var(--bg3);scrollbar-width:none}
-.demo-tabs::-webkit-scrollbar{display:none}
-.demo-tab{flex-shrink:0;padding:12px 14px;font-size:0.72rem;font-weight:600;letter-spacing:0.05em;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;user-select:none}
-.demo-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.demo-tab:hover:not(.active){color:var(--muted2)}
-.demo-body{padding:20px}
-.demo-input-row{display:flex;gap:8px;margin-bottom:14px}
-.demo-input{flex:1;min-width:0;height:42px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:0 14px;font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--text);outline:none;transition:border-color 0.2s}
-.demo-input:focus{border-color:var(--accent)}
-.demo-run{height:42px;padding:0 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.2s;white-space:nowrap;flex-shrink:0}
-.demo-run:hover{background:#2563EB}
-.demo-loading{display:none;padding:18px;align-items:center;justify-content:center;gap:10px;color:var(--muted2);font-size:0.8rem}
-.demo-loading.show{display:flex}
-.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite}
+/* Google button */
+.btn-google{width:100%;height:52px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:12px;font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all 0.2s;position:relative;overflow:hidden}
+.btn-google:hover{background:#f8f9fa;box-shadow:0 4px 16px rgba(0,0,0,0.12);transform:translateY(-1px)}
+.btn-google:active{transform:translateY(0);box-shadow:none}
+.btn-google:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-google .g-icon{flex-shrink:0;width:20px;height:20px}
+.btn-google .btn-text{flex:1;text-align:center}
+
+/* spinner inside button */
+.btn-spinner{width:18px;height:18px;border:2px solid #dadce0;border-top-color:#4285F4;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.demo-result{display:none;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px}
-.demo-result.show{display:block;animation:fadeIn 0.3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.result-status{display:flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:600;color:var(--green);letter-spacing:0.08em;text-transform:uppercase}
-.result-status-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
-.result-credits{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:4px;border:1px solid var(--border)}
-.result-rows{display:flex;flex-direction:column;gap:8px}
-.result-row{display:flex;align-items:flex-start;gap:12px;font-size:0.8rem}
-.result-key{flex-shrink:0;width:80px;font-size:0.67rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);padding-top:1px}
-.result-val{color:var(--text);font-weight:500;line-height:1.4}
-.result-val.green{color:var(--green)}
-.result-val.yellow{color:var(--yellow)}
-.result-val.mono{font-family:'DM Mono',monospace;font-size:0.77rem}
-.result-tag{display:inline-block;font-size:0.6rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:2px 6px;border-radius:3px;margin-left:6px}
-.tag-a{background:rgba(59,130,246,0.15);color:var(--accent)}
-.tag-b{background:rgba(16,185,129,0.12);color:var(--green)}
 
-/* ── STATS ─────────────────────────────────────────────── */
-.stats-strip{display:flex;justify-content:center;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg2)}
-.stat-item{flex:1 1 140px;min-width:120px;padding:28px 20px;text-align:center;border-right:1px solid var(--border)}
-.stat-item:last-child{border-right:none}
-.stat-num{font-size:clamp(1.6rem,3vw,2rem);font-weight:800;background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-.stat-label{font-size:0.68rem;color:var(--muted);font-weight:500;letter-spacing:0.08em;text-transform:uppercase;margin-top:6px}
-
-/* ── SECTIONS ──────────────────────────────────────────── */
-.section-wrap{padding:80px 24px;max-width:1100px;margin:0 auto}
-.section-eyebrow{font-size:0.68rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-.section-h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-0.01em;margin-bottom:12px}
-.section-sub{font-size:0.9rem;color:var(--muted2);line-height:1.75;max-width:520px;font-weight:400}
-
-/* ── SEARCH CARDS ──────────────────────────────────────── */
-.search-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:14px;margin-top:40px}
-.search-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:22px;transition:all 0.25s;position:relative;overflow:hidden;cursor:default}
-.search-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(59,130,246,0.05),transparent);opacity:0;transition:opacity 0.25s}
-.search-card:hover{border-color:rgba(59,130,246,0.35);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.35)}
-.search-card:hover::after{opacity:1}
-.sc-icon{font-size:1.7rem;margin-bottom:12px;display:block}
-.sc-name{font-size:0.875rem;font-weight:700;margin-bottom:6px}
-.sc-desc{font-size:0.75rem;color:var(--muted2);line-height:1.55;font-weight:400}
-.sc-cr{position:absolute;top:12px;right:12px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:var(--accent);font-size:0.6rem;font-weight:700;padding:3px 7px;border-radius:4px;font-family:'DM Mono',monospace}
-
-/* ── CAT FILTER ────────────────────────────────────────── */
-.cat-filter{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
-.cat-btn{padding:7px 16px;border-radius:20px;font-size:0.75rem;font-weight:600;letter-spacing:0.04em;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted2);transition:all 0.2s;font-family:'Syne',sans-serif}
-.cat-btn:hover{color:var(--text);border-color:var(--accent)}
-.cat-btn.active{background:rgba(59,130,246,0.12);border-color:var(--accent);color:var(--accent)}
-
-/* ── PRICING ───────────────────────────────────────────── */
-.plans-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;margin-top:40px}
-.plan-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;position:relative;transition:all 0.25s}
-.plan-card:hover{transform:translateY(-3px)}
-.plan-card.featured{border-color:rgba(59,130,246,0.5);background:linear-gradient(160deg,rgba(59,130,246,0.06),rgba(6,182,212,0.03))}
-.plan-pill{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:4px 12px;border-radius:20px;white-space:nowrap}
-.plan-name{font-size:0.875rem;font-weight:700;color:var(--muted2);margin-bottom:6px}
-.plan-price{font-size:2.2rem;font-weight:800;line-height:1;margin-bottom:4px;letter-spacing:-0.02em}
-.plan-price sub{font-size:0.9rem;font-weight:500;color:var(--muted);vertical-align:super}
-.plan-period{font-size:0.78rem;color:var(--muted);margin-bottom:20px}
-.plan-features{list-style:none;margin-bottom:22px;display:flex;flex-direction:column;gap:9px}
-.plan-features li{display:flex;align-items:flex-start;gap:9px;font-size:0.82rem;color:var(--muted2);line-height:1.4}
-.plan-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
-.btn-plan{width:100%;height:40px;background:rgba(59,130,246,0.12);color:var(--accent);border:1px solid rgba(59,130,246,0.25);border-radius:8px;font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-.btn-plan:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
-.plan-card.featured .btn-plan{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-/* ── FOOTER ────────────────────────────────────────────── */
-footer{border-top:1px solid var(--border);padding:36px 24px 28px;background:var(--bg2)}
-.footer-inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between;margin-bottom:28px}
-.footer-brand .nav-logo{margin-bottom:10px;pointer-events:none}
-.footer-brand p{font-size:0.78rem;color:var(--muted);line-height:1.7;max-width:280px}
-.footer-col h4{font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-.footer-col a{display:block;font-size:0.8rem;color:var(--muted2);text-decoration:none;margin-bottom:8px;transition:color 0.2s}
-.footer-col a:hover{color:var(--text)}
-.footer-bottom{text-align:center;padding-top:24px;border-top:1px solid var(--border);font-size:0.72rem;color:var(--muted)}
-
-/* ── RESPONSIVE ────────────────────────────────────────── */
-@media(max-width:768px){
-  nav{padding:0 16px;height:60px}
-  .nav-center{display:none}
-  .nav-links{display:none}
-  .hamburger{display:flex}
-  .mobile-menu{top:60px}
-  .hero{padding:80px 16px 48px}
-  .demo-widget{border-radius:12px}
-  .demo-tab{padding:10px 11px;font-size:0.67rem}
-  .result-key{width:72px}
-  .stats-strip{flex-direction:row}
-  .stat-item{flex:1 1 50%;border-bottom:1px solid var(--border)}
-  .stat-item:nth-child(odd){border-right:1px solid var(--border)}
-  .stat-item:nth-child(even){border-right:none}
-  .stat-item:nth-last-child(-n+2){border-bottom:none}
-  .section-wrap{padding:56px 16px}
-  .search-grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
-  .search-card{padding:16px}
-  .plans-grid{grid-template-columns:1fr;max-width:380px;margin-left:auto;margin-right:auto}
-  .footer-inner{flex-direction:column;gap:24px}
-}
-@media(max-width:400px){
-  .hero-actions{flex-direction:column;align-items:stretch}
-  .hero-actions a{justify-content:center}
-  .demo-input-row{flex-direction:column}
-  .demo-run{width:100%;justify-content:center}
-  .cat-filter{gap:6px}
-  .cat-btn{padding:6px 12px;font-size:0.7rem}
-}
+.err{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:#FCA5A5;padding:11px 14px;font-size:0.82rem;margin-top:18px;display:none;border-left:3px solid var(--red);line-height:1.5}
+.divider{display:flex;align-items:center;gap:10px;margin:24px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;white-space:nowrap}
+.links{display:flex;justify-content:center;margin-top:22px;font-size:0.8rem;color:var(--muted);gap:6px}
+.links a{color:var(--accent);text-decoration:none;font-weight:600}
+.features{display:flex;flex-direction:column;gap:9px;margin-bottom:32px}
+.feat{display:flex;align-items:center;gap:10px;font-size:0.8rem;color:var(--muted2)}
+.feat-icon{width:28px;height:28px;border-radius:7px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0}
 </style>
 </head>
 <body>
-
-<nav>
-  <a href="/" class="nav-logo">
-    <div class="nav-logo-mark">IG</div>
-    <span class="nav-brand">INTELGRID</span>
+<div class="card">
+  <a href="/" class="logo">
+    <div class="logo-mark">IG</div>
+    <span class="logo-text">INTELGRID</span>
   </a>
 
-  <div class="nav-center">
-    <svg class="nav-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input class="nav-search-input" id="navSearchInput" placeholder="Quick search — phone, vehicle, IP…" onkeydown="navSearchKeydown(event)"/>
+  <h1>Welcome Back</h1>
+  <p class="sub">Sign in to your intelligence dashboard</p>
+
+  <div class="features">
+    <div class="feat"><div class="feat-icon">🔍</div>14 search modules — phone, Aadhar, vehicle & more</div>
+    <div class="feat"><div class="feat-icon">🔒</div>Encrypted · authorized use only</div>
+    <div class="feat"><div class="feat-icon">⚡</div>Results in under 3 seconds</div>
   </div>
 
-  <div class="nav-links">
-    <a href="#searches" class="nav-text">Modules</a>
-    <a href="#pricing" class="nav-text">Pricing</a>
-    <a href="login.html" class="btn-nav btn-nav-ghost">Login</a>
-    <a href="register.html" class="btn-nav">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Get Started
-    </a>
-  </div>
-
-  <button class="hamburger" id="ham" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
+  <button class="btn-google" id="googleBtn" onclick="googleSignIn()">
+    <svg class="g-icon" viewBox="0 0 48 48">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+    </svg>
+    <span class="btn-text">Continue with Google</span>
   </button>
-</nav>
 
-<div class="mobile-menu" id="mobileMenu">
-  <div class="mobile-search-bar">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input placeholder="Search — phone, vehicle, IP…" onkeydown="navSearchKeydown(event)"/>
-  </div>
-  <div class="mobile-nav-links">
-    <a href="#searches" onclick="closeMenu()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:10px;color:var(--accent)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      Search Modules
-    </a>
-    <a href="#pricing" onclick="closeMenu()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:10px;color:var(--accent)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-      Pricing
-    </a>
-  </div>
-  <div class="mobile-menu-btns">
-    <a href="login.html" class="mobile-btn-ghost">Login</a>
-    <a href="register.html" class="mobile-btn-primary">Get Started Free</a>
+  <div class="err" id="err"></div>
+
+  <div class="divider"><span>new to intelgrid?</span></div>
+  <div class="links">
+    <span>Don't have an account?</span>
+    <a href="register.html">Create one free →</a>
   </div>
 </div>
 
-<!-- ── HERO ─────────────────────────────────────────── -->
-<div class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-inner">
-    <div class="hero-badge">
-      <span class="hero-dot"></span>
-      System Online · 14 Intelligence Modules
-    </div>
-    <h1>OSINT Intelligence.<br/>Built for Investigators.</h1>
-    <p class="hero-sub">Advanced open-source intelligence for cybersecurity professionals. Phone, Aadhar, vehicle, IP, GST, Telegram, Instagram, IMEI, UPI, IFSC, email, leak analysis — and more.</p>
-    <div class="hero-actions">
-      <a href="register.html" class="btn-primary">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Start Free — 5 Credits
-      </a>
-      <a href="#searches" class="btn-outline-hero">View All Modules →</a>
-    </div>
-
-    <!-- DEMO WIDGET -->
-    <div class="demo-widget">
-      <div class="demo-tabs" id="demoTabs">
-        <div class="demo-tab active" data-type="phone" onclick="switchTab(this)">📱 Phone</div>
-        <div class="demo-tab" data-type="vehicle" onclick="switchTab(this)">🚗 Vehicle</div>
-        <div class="demo-tab" data-type="ip" onclick="switchTab(this)">🌐 IP</div>
-        <div class="demo-tab" data-type="gst" onclick="switchTab(this)">🏢 GST</div>
-        <div class="demo-tab" data-type="imei" onclick="switchTab(this)">📟 IMEI</div>
-        <div class="demo-tab" data-type="aadhar" onclick="switchTab(this)">🆔 Aadhar</div>
-        <div class="demo-tab" data-type="upi" onclick="switchTab(this)">💳 UPI</div>
-      </div>
-      <div class="demo-body">
-        <div class="demo-input-row">
-          <input class="demo-input" id="demoInput" placeholder="+91XXXXXXXXXX" value="+91 98765 43210"/>
-          <button class="demo-run" id="demoRunBtn" onclick="runDemo()">
-            Analyze
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-        <div class="demo-loading" id="demoLoading">
-          <div class="spinner"></div>
-          Querying intelligence modules…
-        </div>
-        <div class="demo-result" id="demoResult">
-          <div class="result-header">
-            <div class="result-status"><div class="result-status-dot"></div>Match Found</div>
-            <div class="result-credits" id="resultCredits">−2 credits</div>
-          </div>
-          <div class="result-rows" id="resultRows"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ── STATS ─────────────────────────────────────────── -->
-<div class="stats-strip">
-  <div class="stat-item"><div class="stat-num">14</div><div class="stat-label">Search Modules</div></div>
-  <div class="stat-item"><div class="stat-num">99.2%</div><div class="stat-label">Uptime</div></div>
-  <div class="stat-item"><div class="stat-num">&lt;3s</div><div class="stat-label">Avg Response</div></div>
-  <div class="stat-item"><div class="stat-num">256-bit</div><div class="stat-label">Encrypted</div></div>
-</div>
-
-<!-- ── SEARCH MODULES ─────────────────────────────────── -->
-<section id="searches">
-  <div class="section-wrap">
-    <div class="section-eyebrow">Intelligence Modules</div>
-    <div class="section-h2">14 Powerful Search Types</div>
-    <div class="section-sub">Each module is purpose-built for deep intelligence. Results delivered in structured, analyst-ready format.</div>
-
-    <div class="cat-filter">
-      <button class="cat-btn active" onclick="filterCards('all',this)">All</button>
-      <button class="cat-btn" onclick="filterCards('identity',this)">Identity</button>
-      <button class="cat-btn" onclick="filterCards('financial',this)">Financial</button>
-      <button class="cat-btn" onclick="filterCards('digital',this)">Digital</button>
-      <button class="cat-btn" onclick="filterCards('vehicle',this)">Vehicle</button>
-    </div>
-
-    <div class="search-grid" id="searchGrid">
-      <div class="search-card" data-cat="identity"><span class="sc-cr">2 CR</span><span class="sc-icon">📱</span><div class="sc-name">Phone Analysis</div><div class="sc-desc">Carrier, location, TRAI data, and telecom intelligence from any Indian mobile number.</div></div>
-      <div class="search-card" data-cat="identity"><span class="sc-cr">2 CR</span><span class="sc-icon">👨‍👩‍👧‍👦</span><div class="sc-name">Family Network</div><div class="sc-desc">All family members, relations, ages, and addresses from a 12-digit Aadhar number.</div></div>
-      <div class="search-card" data-cat="identity"><span class="sc-cr">3 CR</span><span class="sc-icon">🆔</span><div class="sc-name">Aadhar Comprehensive</div><div class="sc-desc">Full identity record, address history, and linked numbers from Aadhar.</div></div>
-      <div class="search-card" data-cat="vehicle"><span class="sc-cr">2 CR</span><span class="sc-icon">🚗</span><div class="sc-name">Vehicle Analysis</div><div class="sc-desc">Owner details, RTO registration, insurance, and challan records from any vehicle number.</div></div>
-      <div class="search-card" data-cat="digital"><span class="sc-cr">3 CR</span><span class="sc-icon">✈️</span><div class="sc-name">Telegram Analysis</div><div class="sc-desc">Profile data, group memberships, and metadata from Telegram usernames or numbers.</div></div>
-      <div class="search-card" data-cat="digital"><span class="sc-cr">2 CR</span><span class="sc-icon">📟</span><div class="sc-name">IMEI / Device</div><div class="sc-desc">Device make, model, manufacturing details, and blacklist status from IMEI numbers.</div></div>
-      <div class="search-card" data-cat="financial"><span class="sc-cr">2 CR</span><span class="sc-icon">🏢</span><div class="sc-name">GST Analysis</div><div class="sc-desc">Business registration, filing history, address, and ownership from GST numbers.</div></div>
-      <div class="search-card" data-cat="digital"><span class="sc-cr">3 CR</span><span class="sc-icon">📸</span><div class="sc-name">Instagram Analysis</div><div class="sc-desc">Public profile data, follower analytics, linked accounts, and activity patterns.</div></div>
-      <div class="search-card" data-cat="digital"><span class="sc-cr">1 CR</span><span class="sc-icon">🌐</span><div class="sc-name">IP Analysis</div><div class="sc-desc">Geolocation, ISP, ASN, VPN detection, and threat intelligence for any IP address.</div></div>
-      <div class="search-card" data-cat="financial"><span class="sc-cr">1 CR</span><span class="sc-icon">🏦</span><div class="sc-name">IFSC Code Lookup</div><div class="sc-desc">Bank name, branch, address, MICR and RBI details from any IFSC code.</div></div>
-      <div class="search-card" data-cat="digital"><span class="sc-cr">2 CR</span><span class="sc-icon">📧</span><div class="sc-name">Email Intelligence</div><div class="sc-desc">Breach history, associated accounts, and threat data linked to any email address.</div></div>
-      <div class="search-card" data-cat="financial"><span class="sc-cr">2 CR</span><span class="sc-icon">💳</span><div class="sc-name">UPI Intelligence</div><div class="sc-desc">Account holder name, bank, and transaction metadata from any UPI ID.</div></div>
-      <div class="search-card" data-cat="identity"><span class="sc-cr">2 CR</span><span class="sc-icon">🌏</span><div class="sc-name">Pakistan DB</div><div class="sc-desc">Name, phone, NIC lookup against Pakistani national identity databases.</div></div>
-      <div class="search-card" data-cat="digital"><span class="sc-cr">3 CR</span><span class="sc-icon">🚀</span><div class="sc-name">Advanced OSINT / Leak</div><div class="sc-desc">Multi-source intelligence on any name, phone, email — cross-referenced across data breaches.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ── PRICING ─────────────────────────────────────────── -->
-<section id="pricing" style="border-top:1px solid var(--border)">
-  <div class="section-wrap">
-    <div class="section-eyebrow">Pricing</div>
-    <div class="section-h2">Choose Your Plan</div>
-    <div class="section-sub">Start free with 5 credits. Upgrade anytime. No hidden fees.</div>
-    <div class="plans-grid">
-      <div class="plan-card">
-        <div class="plan-name">Free</div>
-        <div class="plan-price"><sub>₹</sub>0</div>
-        <div class="plan-period">forever</div>
-        <ul class="plan-features">
-          <li>5 signup credits</li><li>All 14 search modules</li>
-          <li>Search history</li><li>Buy more credits anytime</li>
-        </ul>
-        <a href="register.html" class="btn-plan">Get Started Free</a>
-      </div>
-      <div class="plan-card featured">
-        <div class="plan-pill">Most Popular</div>
-        <div class="plan-name">Pro</div>
-        <div class="plan-price"><sub>₹</sub>599</div>
-        <div class="plan-period">per month</div>
-        <ul class="plan-features">
-          <li>50 searches per day</li><li>All 14 search modules</li>
-          <li>Export results</li><li>Priority support</li><li>No per-search charges</li>
-        </ul>
-        <a href="register.html" class="btn-plan">Subscribe to Pro</a>
-      </div>
-      <div class="plan-card">
-        <div class="plan-name">Elite</div>
-        <div class="plan-price"><sub>₹</sub>999</div>
-        <div class="plan-period">per month</div>
-        <ul class="plan-features">
-          <li>Unlimited searches</li><li>All 14 search modules</li>
-          <li>API access</li><li>24/7 support</li>
-          <li>Bulk export</li><li>Custom integrations</li>
-        </ul>
-        <a href="register.html" class="btn-plan">Subscribe to Elite</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── FOOTER ──────────────────────────────────────────── -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <a href="/" class="nav-logo" style="pointer-events:none">
-        <div class="nav-logo-mark">IG</div>
-        <span class="nav-brand">INTELGRID</span>
-      </a>
-      <p style="margin-top:10px">Professional OSINT intelligence platform. For authorized and lawful use only.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Platform</h4>
-      <a href="#searches">Search Modules</a>
-      <a href="#pricing">Pricing</a>
-      <a href="dashboard.html">Dashboard</a>
-    </div>
-    <div class="footer-col">
-      <h4>Account</h4>
-      <a href="login.html">Login</a>
-      <a href="register.html">Register</a>
-    </div>
-    <div class="footer-col">
-      <h4>Legal</h4>
-      <a href="terms.html">Terms of Service</a>
-      <a href="privacy.html">Privacy Policy</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2025 IntelGrid. For authorized use only. Unauthorized use is strictly prohibited.</p>
-  </div>
-</footer>
-
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Hidden container for Google's renderButton — we click it programmatically once -->
+<div id="g-btn-host" style="position:absolute;opacity:0;pointer-events:none;height:0;overflow:hidden"></div>
 <script>
-// ── Nav helpers ────────────────────────────────────────────
-function toggleMenu(){document.getElementById('ham').classList.toggle('open');document.getElementById('mobileMenu').classList.toggle('open');}
-function closeMenu(){document.getElementById('ham').classList.remove('open');document.getElementById('mobileMenu').classList.remove('open');}
-document.addEventListener('click',e=>{if(!e.target.closest('nav')&&!e.target.closest('.mobile-menu'))closeMenu();});
+const API = '';
+const GOOGLE_CLIENT_ID = '820086258635-ir6s0i0ms2pm55g0h0jm2pkf2cr21r9r.apps.googleusercontent.com';
 
-// ── Quick nav search ───────────────────────────────────────
-function navSearchKeydown(e){
-  if(e.key==='Enter'){
-    const q=e.target.value.trim();
-    if(q){window.location.href='login.html?redirect=dashboard&q='+encodeURIComponent(q);}
+// Redirect already-logged-in users
+(function() {
+  const token = localStorage.getItem('intelToken');
+  const user  = localStorage.getItem('intelUser');
+  if (token && user) {
+    try {
+      const u = JSON.parse(user);
+      window.location.replace(u.role === 'admin' ? 'admin.html' : 'dashboard.html');
+    } catch(e) {
+      localStorage.removeItem('intelToken');
+      localStorage.removeItem('intelUser');
+    }
   }
+})();
+
+const G_ICON = `<svg class="g-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`;
+
+let _signingIn = false;
+
+function setLoading(on) {
+  const btn = document.getElementById('googleBtn');
+  btn.disabled = on;
+  btn.innerHTML = on
+    ? `<div class="btn-spinner"></div><span class="btn-text">Signing in…</span>`
+    : G_ICON + `<span class="btn-text">Continue with Google</span>`;
 }
 
-// ── Category filter ────────────────────────────────────────
-function filterCards(cat,btn){
-  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.search-card').forEach(c=>{
-    c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none';
+function initGoogle() {
+  // Initialize once with our callback — NO auto_select, NO prompt call
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: true,
+  });
+
+  // Render Google's real button into the hidden host — this gives us the popup
+  google.accounts.id.renderButton(document.getElementById('g-btn-host'), {
+    type: 'standard',
+    theme: 'outline',
+    size: 'large',
   });
 }
 
-// ── Demo widget ────────────────────────────────────────────
-const demoData={
-  phone:{placeholder:'+91XXXXXXXXXX',credits:'−2 credits',rows:[
-    {k:'Number',v:'+91 98765 43210',cls:'mono'},{k:'Name',v:'[ Redacted ]',cls:'yellow'},
-    {k:'Carrier',v:'Reliance Jio',tag:{text:'JIO',cls:'tag-a'}},{k:'Type',v:'Mobile',tag:{text:'PREPAID',cls:'tag-b'}},
-    {k:'Circle',v:'Maharashtra — Mumbai'},{k:'Status',v:'Active · TRAI Verified',cls:'green'}]},
-  vehicle:{placeholder:'MH12AB1234',credits:'−2 credits',rows:[
-    {k:'Reg No',v:'MH12 AB 1234',cls:'mono'},{k:'Owner',v:'[ Redacted ]',cls:'yellow'},
-    {k:'Make',v:'Maruti Suzuki Swift'},{k:'RTO',v:'MH-12 Pune (West)'},
-    {k:'Insurance',v:'Valid till Dec 2025',cls:'green'},{k:'Challans',v:'0 pending',cls:'green'}]},
-  ip:{placeholder:'8.8.8.8',credits:'−1 credit',rows:[
-    {k:'IP',v:'8.8.8.8',cls:'mono'},{k:'Location',v:'Mountain View, CA, US'},
-    {k:'ISP',v:'Google LLC'},{k:'ASN',v:'AS15169'},
-    {k:'VPN/Proxy',v:'Not detected',cls:'green'},{k:'Threat',v:'0/100 — Clean',cls:'green'}]},
-  gst:{placeholder:'27AABCU9603R1ZX',credits:'−2 credits',rows:[
-    {k:'GSTIN',v:'27AABCU9603R1ZX',cls:'mono'},{k:'Entity',v:'Sample Pvt Ltd',cls:'green'},
-    {k:'State',v:'Maharashtra (27)'},{k:'Type',v:'Regular Taxpayer'},
-    {k:'Status',v:'Active',cls:'green'},{k:'Filing',v:'14 returns filed'}]},
-  imei:{placeholder:'352000000000000',credits:'−2 credits',rows:[
-    {k:'IMEI',v:'352000000000000',cls:'mono'},{k:'Brand',v:'Apple Inc.'},
-    {k:'Model',v:'iPhone 14 Pro Max'},{k:'Origin',v:'Foxconn — Zhengzhou'},
-    {k:'Blacklist',v:'Not blacklisted',cls:'green'},{k:'Status',v:'Valid IMEI',cls:'green'}]},
-  aadhar:{placeholder:'XXXX XXXX XXXX',credits:'−3 credits',rows:[
-    {k:'Aadhar',v:'XXXX XXXX 3456',cls:'mono'},{k:'Name',v:'[ Redacted ]',cls:'yellow'},
-    {k:'DOB',v:'[ Redacted ]'},{k:'Gender',v:'[ Redacted ]'},
-    {k:'Address',v:'[ Redacted ], India'},{k:'Status',v:'Verified · UIDAI',cls:'green'}]},
-  upi:{placeholder:'user@ybl',credits:'−2 credits',rows:[
-    {k:'UPI ID',v:'user@ybl',cls:'mono'},{k:'Account',v:'[ Redacted ]',cls:'yellow'},
-    {k:'Bank',v:'Yes Bank Ltd'},{k:'VPA',v:'Active',cls:'green'},
-    {k:'Type',v:'Savings Account'},{k:'KYC',v:'Full KYC',cls:'green'}]},
-};
+if (typeof google !== 'undefined') initGoogle();
+else document.querySelector('script[src*="gsi"]').addEventListener('load', initGoogle);
 
-let currentType='phone';
-function switchTab(el){
-  document.querySelectorAll('.demo-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');currentType=el.dataset.type;
-  const d=demoData[currentType];
-  document.getElementById('demoInput').placeholder=d.placeholder;
-  document.getElementById('demoInput').value='';
-  document.getElementById('demoResult').classList.remove('show');
-  document.getElementById('demoLoading').classList.remove('show');
+function googleSignIn() {
+  if (typeof google === 'undefined') {
+    showErr('Google Sign-In script failed to load. Check your internet connection.');
+    return;
+  }
+  if (_signingIn) return; // prevent double-click
+  _signingIn = true;
+  hideErr();
+  setLoading(true);
+
+  // Click the real Google button inside the hidden host — opens ONE clean popup
+  const realBtn = document.querySelector('#g-btn-host div[role="button"]');
+  if (realBtn) {
+    realBtn.click();
+  } else {
+    // GSI not ready yet — retry once after short delay
+    setTimeout(() => {
+      const btn2 = document.querySelector('#g-btn-host div[role="button"]');
+      if (btn2) { btn2.click(); }
+      else { showErr('Google Sign-In not ready. Please try again.'); setLoading(false); _signingIn = false; }
+    }, 800);
+  }
 }
-function runDemo(){
-  const loading=document.getElementById('demoLoading');
-  const result=document.getElementById('demoResult');
-  const btn=document.getElementById('demoRunBtn');
-  result.classList.remove('show');loading.classList.add('show');btn.disabled=true;
-  setTimeout(()=>{
-    loading.classList.remove('show');
-    const d=demoData[currentType];
-    document.getElementById('resultCredits').textContent=d.credits;
-    document.getElementById('resultRows').innerHTML=d.rows.map(r=>{
-      const tag=r.tag?`<span class="result-tag ${r.tag.cls}">${r.tag.text}</span>`:'';
-      return`<div class="result-row"><span class="result-key">${r.k}</span><span class="result-val ${r.cls||''}">${r.v}${tag}</span></div>`;
-    }).join('');
-    result.classList.add('show');btn.disabled=false;
-  },900);
+
+async function handleGoogleCredential(response) {
+  // handleGoogleCredential is only called by the hidden real button — guaranteed once
+  setLoading(true);
+  hideErr();
+  try {
+    const r = await fetch(API + '/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential }),
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      showErr(d.message || 'Sign-in failed. Try again.');
+      setLoading(false);
+      _signingIn = false;
+      return;
+    }
+    localStorage.setItem('intelToken', d.token);
+    localStorage.setItem('intelUser', JSON.stringify(d.user));
+    window.location.replace(d.user.role === 'admin' ? 'admin.html' : 'dashboard.html');
+  } catch(e) {
+    showErr('Network error. Please try again.');
+    setLoading(false);
+    _signingIn = false;
+  }
 }
-setTimeout(runDemo,700);
-if(localStorage.getItem('intelToken'))window.location.href='dashboard.html';
+
+function showErr(msg) { const e = document.getElementById('err'); e.textContent = msg; e.style.display = 'block'; }
+function hideErr()    { document.getElementById('err').style.display = 'none'; }
 </script>
 </body>
 </html>
