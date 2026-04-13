@@ -197,6 +197,57 @@ router.post('/google', async (req, res) => {
   }
 });
 
+// ── POST /api/auth/google-userinfo ───────────────────────────────────────────
+// Called by frontend after obtaining an access_token via oauth2.initTokenClient.
+// Frontend fetches userinfo from Google, then sends it here — no id_token needed.
+router.post('/google-userinfo', async (req, res) => {
+  try {
+    const { sub: googleId, email, name, picture, referralCode } = req.body;
+    if (!googleId || !email)
+      return res.status(400).json({ message: 'Missing Google user info.' });
+
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    if (user) {
+      if (!user.googleId) {
+        user.googleId   = googleId;
+        user.isVerified = true;
+        if (picture && !user.avatar) user.avatar = picture;
+        await user.save();
+      }
+      if (user.isBanned)  return res.status(403).json({ message: `Account banned: ${user.banReason || 'Policy violation'}` });
+      if (!user.isActive) return res.status(403).json({ message: 'Account deactivated. Contact support.' });
+    } else {
+      const signupCr   = await getSignupCredits();
+      const referralCr = await getReferralCredits();
+      user = await User.create({
+        name:       name || email.split('@')[0],
+        email:      email.toLowerCase(),
+        password:   googleId + process.env.JWT_SECRET,
+        googleId,
+        avatar:     picture || null,
+        isVerified: true,
+        credits:    signupCr,
+        referredBy: referralCode || null,
+      });
+      if (referralCode) {
+        await User.findOneAndUpdate({ referralCode }, { $inc: { credits: referralCr } });
+      }
+    }
+
+    await User.findByIdAndUpdate(user._id, {
+      $set: { lastLogin: new Date() },
+      $inc: { loginCount: 1 },
+    });
+
+    const token = signToken(user._id);
+    res.json({ message: 'Signed in with Google.', token, user: formatUser(user) });
+  } catch (err) {
+    console.error('[GoogleUserInfo]', err.message);
+    res.status(500).json({ message: 'Google sign-in failed: ' + err.message });
+  }
+});
+
 // GET /api/auth/config  — tells the frontend which Google Client ID to use
 router.get('/config', (req, res) => {
   res.json({
